@@ -1,40 +1,25 @@
-from typing import Optional, List
 from fastapi import FastAPI
-from sqlmodel import Field, SQLModel, create_engine, Session, select
+from fastapi.middleware.cors import CORSMiddleware
+from sqlmodel import SQLModel
+from database import engine
+from routers import users, accounts, transactions
 
-# 1. Definizione del modello del Database (Questo genera sia il DB che la documentazione)
-class Account(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str        # Es. "Contanti", "Banca 1"
-    type: str        # Es. "cash", "bank"
-    balance: float   # Saldo attuale
+app = FastAPI(title="Skay Finance API", version="0.2")
 
-# 2. Configurazione del Database (Inizialmente usiamo SQLite per semplicità, poi lo colleghiamo a Postgres)
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-engine = create_engine(sqlite_url, echo=True)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# 3. Inizializzazione FastAPI
-app = FastAPI(title="Skay API", version="0.1")
-
-# Crea le tabelle all'avvio dell'applicazione
+# Create tables on startup
 @app.on_event("startup")
 def on_startup():
     SQLModel.metadata.create_all(engine)
 
-# 4. Endpoint API (Rotte)
-@app.get("/accounts", response_model=List[Account], tags=["Accounts"])
-def get_accounts():
-    """Get all accounts (e.g., Banks, Cash)"""
-    with Session(engine) as session:
-        accounts = session.exec(select(Account)).all()
-        return accounts
-
-@app.post("/accounts", response_model=Account, tags=["Accounts"])
-def create_account(account: Account):
-    """Create a new account (e.g., Bank, Cash)"""
-    with Session(engine) as session:
-        session.add(account)
-        session.commit()
-        session.refresh(account)
-        return account
+# Include professional modular routers
+app.include_router(users.router, prefix="/api")
+app.include_router(accounts.router, prefix="/api")
+app.include_router(transactions.router, prefix="/api")
