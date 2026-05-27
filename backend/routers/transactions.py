@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 from database import get_db
 from models import Transaction, TransactionCreate
-from services import finance
+from services import stats_service as stats, transaction_service as finance
 
 router = APIRouter(tags=["Transactions"])
 
@@ -39,4 +39,4 @@ def get_transaction_stats(
     db: Session = Depends(get_db)
 ):
     """Get aggregated financial stats filtered by date range."""
-    return finance.get_financial_stats(db, user_id, start_date, end_date)
+    return stats.get_financial_stats(db, user_id, start_date, end_date)

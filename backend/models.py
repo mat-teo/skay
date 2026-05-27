@@ -8,13 +8,15 @@ from sqlmodel import Field, SQLModel
 class UserCreate(SQLModel):
     """Schema for user registration input."""
     email: str
-    password_hash: str
+    password: str
     base_currency: str = "EUR"
 
-class User(UserCreate, table=True):
+class User(SQLModel, table=True):
     """Database table representing a registered user."""
     id: Optional[int] = Field(default=None, primary_key=True)
-    
+    email: str = Field(unique=True, index = True)
+    password_hash: str
+    base_currency: str = "EUR"
     # Future Auth/OTP management fields
     is_verified: bool = Field(default=False)
     otp_code: Optional[str] = Field(default=None)
