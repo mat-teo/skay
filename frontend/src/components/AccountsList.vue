@@ -101,9 +101,7 @@ export default {
       loading: false,
       submitting: false,
       error: null,
-      // Mocking user_id: 1 until Auth layer is implemented
       newAccount: {
-        user_id: 1,
         name: '',
         type: 'bank',
         balance: 0.0
@@ -145,7 +143,7 @@ export default {
         // Close the bootstrap modal programmatically by triggering click on close button
         document.getElementById('closeModalBtn').click();
       } catch (err) {
-        alert('Error creating account. Ensure user with ID 1 exists in your DB.');
+        alert('Error creating account.');
         console.error(err);
       } finally {
         this.submitting = false;

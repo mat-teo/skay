@@ -86,8 +86,7 @@ export default {
         category: '',
         date: new Date().toISOString().split('T')[0],
         notes: '',
-        account_id: 1,
-        user_id: 1
+        account_id: 1
       }
     };
   },
@@ -141,8 +140,7 @@ export default {
           category: '',
           date: new Date().toISOString().split('T')[0],
           notes: '',
-          account_id: 1,
-          user_id: 1
+          account_id: 1
         };
 
         // Close the modal native frame

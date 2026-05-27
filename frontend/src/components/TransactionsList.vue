@@ -122,7 +122,7 @@ export default {
       showInlineCategory: false,
       newCategoryName: '',
       newTransaction: {
-        user_id: 1, amount: 0.0, type: 'expense', notes: '',
+         amount: 0.0, type: 'expense', notes: '',
         category_id: null, account_source_id: null, account_destination_id: null
       }
     };
@@ -134,7 +134,7 @@ export default {
   methods: {
     async fetchTransactions(startDate = null) {
       try {
-        let url = 'http://127.0.0.1:8000/api/transactions?user_id=1';
+        let url = 'http://127.0.0.1:8000/api/transactions';
         if (startDate) url += `&start_date=${startDate}`;
         const response = await axios.get(url);
         this.transactions = response.data;
@@ -163,7 +163,6 @@ export default {
       if (!this.newCategoryName.trim()) return;
       try {
         const response = await axios.post('http://127.0.0.1:8000/api/categories', {
-          user_id: 1,
           name: this.newCategoryName.trim(),
           type: this.newTransaction.type
         });

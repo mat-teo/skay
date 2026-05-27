@@ -113,7 +113,7 @@ export default {
     async fetchStats() {
       try {
         const { start_date, end_date } = this.getDateRange();
-        let url = 'http://127.0.0.1:8000/api/transactions/stats?user_id=1';
+        let url = 'http://127.0.0.1:8000/api/transactions/stats';
         
         if (start_date) url += `&start_date=${start_date}`;
         
