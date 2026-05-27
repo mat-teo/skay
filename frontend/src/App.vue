@@ -7,13 +7,15 @@
     </nav>
 
     <main class="container">
+      <StatsOverview ref="statsOverview" @filter-changed="handleFilterChange" />
+
       <div class="row">
         <div class="col-12 col-lg-5 mb-4">
           <AccountsList ref="accountsList" />
         </div>
         
         <div class="col-12 col-lg-7 mb-4">
-          <TransactionsList @transaction-saved="refreshAccountsData" />
+          <TransactionsList ref="transactionsList" :dateFilters="currentFilters" @transaction-saved="refreshDashboardData" />
         </div>
       </div>
     </main>
@@ -23,19 +25,27 @@
 <script>
 import AccountsList from './components/AccountsList.vue';
 import TransactionsList from './components/TransactionsList.vue';
+import StatsOverview from './components/StatsOverview.vue';
 
 export default {
   name: 'App',
-  components: {
-    AccountsList,
-    TransactionsList
+  components: { AccountsList, TransactionsList, StatsOverview },
+  data() {
+    return {
+      currentFilters: { start_date: null, end_date: null }
+    };
   },
   methods: {
-    refreshAccountsData() {
-      // Accessing the fetchAccounts method inside AccountsList component via Vue refs
-      if (this.$refs.accountsList) {
-        this.$refs.accountsList.fetchAccounts();
+    handleFilterChange(filters) {
+      this.currentFilters = filters;
+      // Trigger a refresh on the transactions list with the new date scope
+      if (this.$refs.transactionsList) {
+        this.$refs.transactionsList.fetchTransactions(filters.start_date);
       }
+    },
+    refreshDashboardData() {
+      if (this.$refs.accountsList) this.$refs.accountsList.fetchAccounts();
+      if (this.$refs.statsOverview) this.$refs.statsOverview.fetchStats();
     }
   }
 };
