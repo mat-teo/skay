@@ -135,7 +135,7 @@ export default {
     async fetchTransactions(startDate = null) {
       try {
         let url = 'http://127.0.0.1:8000/api/transactions';
-        if (startDate) url += `&start_date=${startDate}`;
+        if (startDate) url += `?start_date=${startDate}`;
         const response = await axios.get(url);
         this.transactions = response.data;
       } catch (err) {

@@ -115,7 +115,7 @@ export default {
         const { start_date, end_date } = this.getDateRange();
         let url = 'http://127.0.0.1:8000/api/transactions/stats';
         
-        if (start_date) url += `&start_date=${start_date}`;
+        if (start_date) url += `?start_date=${start_date}`;
         
         const response = await axios.get(url);
         this.stats = response.data;
