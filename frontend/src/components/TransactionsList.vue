@@ -3,7 +3,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2>Transaction History</h2>
       <div>
-        <button class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#addTransactionModal" @click="loadCategories">
+        <button class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#addTransactionModal" @click="loadCategories; fetchAccounts()">
           + Add Transaction
         </button>
       </div>
@@ -84,12 +84,28 @@
               </div>
 
               <div class="mb-3" v-if="newTransaction.type === 'expense' || newTransaction.type === 'transfer'">
-                <label class="form-label">Source Account (ID)</label>
-                <input type="number" class="form-control" v-model.number="newTransaction.account_source_id" required>
+                <label class="form-label">Source Account</label>
+                <select class="form-select" v-model.number="newTransaction.account_source_id" required :disabled="accounts.length === 0">
+                  <option :value="null" disabled>Select an account</option>
+                  <option v-for="acc in accounts" :key="acc.id" :value="acc.id">
+                    {{ acc.name }} ({{ acc.balance.toFixed(2) }} €)
+                  </option>
+                </select>
+                <small v-if="accounts.length === 0" class="text-danger">
+                  No accounts found. Please create an account first.
+                </small>
               </div>
               <div class="mb-3" v-if="newTransaction.type === 'income' || newTransaction.type === 'transfer'">
-                <label class="form-label">Destination Account (ID)</label>
-                <input type="number" class="form-control" v-model.number="newTransaction.account_destination_id" required>
+                <label class="form-label">Destination Account</label>
+                <select class="form-select" v-model.number="newTransaction.account_destination_id" required :disabled="accounts.length === 0">
+                  <option :value="null" disabled>Select an account</option>
+                  <option v-for="acc in accounts" :key="acc.id" :value="acc.id">
+                    {{ acc.name }} ({{ acc.balance.toFixed(2) }} €)
+                  </option>
+                </select>
+                <small v-if="accounts.length === 0" class="text-danger">
+                  No accounts found. Please create an account first.
+                </small>
               </div>
 
               <div class="mb-3">
@@ -118,6 +134,7 @@ export default {
     return {
       transactions: [],
       categories: [],
+      accounts: [],
       filteredCategories: [],
       showInlineCategory: false,
       newCategoryName: '',
@@ -151,6 +168,14 @@ export default {
         console.error(err);
       }
     },
+    async fetchAccounts(){
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/accounts');
+        this.accounts = response.data;
+      } catch (err) {
+        console.error("Failed to load accounts:", err);
+      }
+    },
     filterCategoriesByType() {
       this.filteredCategories = this.categories.filter(c => c.type === this.newTransaction.type);
       this.newTransaction.category_id = null;
@@ -180,6 +205,10 @@ export default {
       return cat ? cat.name : 'Unknown';
     },
     async createTransaction() {
+      if(this.accounts.length === 0){
+        alert('Please create an account before adding transactions.');
+        return;
+      }
       try {
         const payload = { ...this.newTransaction };
         await axios.post('http://127.0.0.1:8000/api/transactions', payload);
