@@ -105,7 +105,8 @@ export default {
         await auth.register(this.email, this.password, this.baseCurrency)
         // Auto-login after registration
         await auth.login(this.email, this.password)
-        this.$router.push('/')
+        
+        this.$emit('login-success')
       } catch (err) {
         this.error = err.message
       } finally {

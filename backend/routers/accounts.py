@@ -2,19 +2,32 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from database import get_db
-from models import Account, User
+from models import Account, User, AccountCreate
+from auth import get_current_user
 
 router = APIRouter(tags=["Accounts"])
 
 @router.get("/accounts", response_model=List[Account])
-def get_all_accounts(db: Session = Depends(get_db)):
-    return db.exec(select(Account)).all()
+def get_all_accounts(
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    accounts = db.exec(select(Account).where(Account.user_id == current_user.id)).all()
+    return accounts
 
 @router.post("/accounts", response_model=Account)
-def create_account(account: Account, db: Session = Depends(get_db)):
-    if not db.get(User, account.user_id):
-        raise HTTPException(status_code=404, detail="User not found")
-    db.add(account)
+def create_account(
+    account: AccountCreate, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    db_account = Account(
+        user_id=current_user.id,
+        name=account.name,
+        type=account.type,
+        balance=account.balance
+    )
+    db.add(db_account)
     db.commit()
-    db.refresh(account)
-    return account
+    db.refresh(db_account)
+    return db_account

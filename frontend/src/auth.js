@@ -15,6 +15,37 @@ export const auth = {
   logout() {
     localStorage.removeItem('token')
     window.location.reload()
+  },
+  async register(email, password, baseCurrency = 'EUR') {
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        email, 
+        password, 
+        base_currency: baseCurrency 
+      })
+    })
+    
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Registration failed')
+    }
+    
+    return await response.json()
+  },
+  async login(email, password){
+    try {
+        const formData = new URLSearchParams()
+        formData.append('username', email)
+        formData.append('password', password)
+        
+        const response = await axios.post('http://127.0.0.1:8000/api/auth/login', formData)
+        localStorage.setItem('token', response.data.access_token)
+        this.$emit('login-success')
+      } catch (err) {
+        this.error = 'Login failed. Check your credentials.'
+      }
   }
 }
 
@@ -37,3 +68,4 @@ axios.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+

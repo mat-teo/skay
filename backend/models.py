@@ -31,7 +31,6 @@ class User(SQLModel, table=True):
 # ==========================================
 class AccountCreate(SQLModel):
     """Schema for creating a financial account."""
-    user_id: int
     name: str  # e.g., "Cash", "Bank Account"
     type: str  # e.g., "cash", "bank", "investment"
     balance: float = 0.0
@@ -39,26 +38,25 @@ class AccountCreate(SQLModel):
 class Account(AccountCreate, table=True):
     """Database table representing a financial account."""
     id: Optional[int] = Field(default=None, primary_key=True)
-
+    user_id: int
 # ==========================================
 # 3. CATEGORY MODELS (Input vs DB)
 # ==========================================
 class TransactionCategoryCreate(SQLModel):
     """Schema for creating a transaction category."""
-    user_id: Optional[int] = Field(default=None)  # null means global/default category
     name: str  # e.g., "Groceries", "Salary"
     type: str  # "income" or "expense"
 
 class TransactionCategory(TransactionCategoryCreate, table=True):
     """Database table representing transaction categories."""
     id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int
 
 # ==========================================
 # 4. TRANSACTION MODELS (Input vs DB)
 # ==========================================
 class TransactionCreate(SQLModel):
     """Schema for recording a new transaction."""
-    user_id: int
     category_id: Optional[int] = None
     amount: float
     type: str  # "income", "expense", "transfer"

@@ -19,6 +19,15 @@
               <div v-if="error" class="alert alert-danger">{{ error }}</div>
               <button type="submit" class="btn btn-dark w-100">Login</button>
             </form>
+
+             <hr>
+            
+            <div class="text-center">
+              <p class="mb-0">Don't have an account?</p>
+              <button @click="$emit('show-register')" class="btn btn-link">
+                Register here
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -28,6 +37,7 @@
 
 <script>
 import axios from 'axios'
+import { auth } from '../auth';
 
 export default {
   name: 'Login',
@@ -40,16 +50,12 @@ export default {
   },
   methods: {
     async handleLogin() {
-      try {
-        const formData = new URLSearchParams()
-        formData.append('username', this.email)
-        formData.append('password', this.password)
-        
-        const response = await axios.post('http://127.0.0.1:8000/api/auth/login', formData)
-        localStorage.setItem('token', response.data.access_token)
-        this.$emit('login-success')
-      } catch (err) {
-        this.error = 'Login failed. Check your credentials.'
+      try{
+        await auth.login(this.email, this.password)
+
+        this.$emit("login-success")
+      }catch(err){
+        this.error = err.message
       }
     }
   }

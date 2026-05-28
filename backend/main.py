@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
 from database import engine
-from routers import users, accounts, transactions, auth
+from routers import categories, users, accounts, transactions, auth
 
 app = FastAPI(title="Skay Finance API", version="0.2")
 
@@ -24,3 +24,4 @@ app.include_router(users.router, prefix="/api")
 app.include_router(accounts.router, prefix="/api")
 app.include_router(transactions.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
+app.include_router(categories.router, prefix="/api")

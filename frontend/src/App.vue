@@ -1,10 +1,16 @@
 <template>
   <div>
-    <!-- Mostra login se NON loggato -->
-    <Login v-if="!isLoggedIn" @login-success="handleLoginSuccess" />
+    
+    <Login v-if="showLogin" 
+    @login-success="handleLoginSuccess"
+    @show-register="showLogin = false; showRegister= true" />
 
-    <!-- Mostra dashboard SE loggato -->
-    <div v-else>
+    <Register
+      v-if="showRegister"
+      @login-success="handleLoginSuccess"
+      />
+
+    <div v-if="isLoggedIn">
       <nav class="navbar navbar-dark bg-dark mb-4">
         <div class="container">
           <a class="navbar-brand fw-bold" href="#">Skay Finance</a>
@@ -36,27 +42,38 @@ import AccountsList from './components/AccountsList.vue';
 import TransactionsList from './components/TransactionsList.vue';
 import StatsOverview from './components/StatsOverview.vue';
 import Login from './components/Login.vue';
+import Register from './components/Register.vue';
 
 export default {
   name: 'App',
-  components: { AccountsList, TransactionsList, StatsOverview, Login },
+  components: { AccountsList, TransactionsList, StatsOverview, Login, Register },
   data() {
     return {
       isLoggedIn: false,
+      showLogin: true,
+      showRegister: false,
       currentFilters: { start_date: null, end_date: null }
     }
   },
   mounted() {
     const token = localStorage.getItem('token')
     this.isLoggedIn = !!token
+    if(this.isLoggedIn){
+      this.showLogin = false
+      this.showRegister = false
+    }
   },
   methods: {
     handleLoginSuccess() {
       this.isLoggedIn = true
+      this.showLogin = false
+      this.showRegister = false
     },
     handleLogout() {
       localStorage.removeItem('token')
       this.isLoggedIn = false
+      this.showLogin = true
+      this.showRegister = false
     },
     handleFilterChange(filters) {
       this.currentFilters = filters;
