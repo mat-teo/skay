@@ -50,3 +50,44 @@ def get_transaction_stats(
 ):
     """Get aggregated financial stats filtered by date range."""
     return stats.get_financial_stats(db, current_user.id, start_date, end_date)
+
+@router.get("/transactions/net-worth", tags=["Transactions"])
+def get_net_worth_history(
+    current_user: User = Depends(get_current_user),
+    start_date: Optional[datetime] = Query(None),
+    end_date: Optional[datetime] = Query(None),
+    interval: str = "month",
+    db: Session = Depends(get_db)
+):
+    """
+    Get net worth history over time.
+    Returns data points for chart (daily, weekly, or monthly aggregated).
+    """
+    return stats.get_net_worth_history(db, current_user.id, start_date, end_date, interval)
+
+@router.put("/transactions/{transaction_id}", response_model=Transaction)
+def update_transaction(
+    transaction_id: int,
+    transaction_input: TransactionCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update an existing transaction."""
+    
+    # Get the transaction
+    transaction = db.get(Transaction, transaction_id)
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    
+    # Check ownership
+    if transaction.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Update fields
+    for key, value in transaction_input.dict().items():
+        setattr(transaction, key, value)
+    
+    db.add(transaction)
+    db.commit()
+    db.refresh(transaction)
+    return transaction

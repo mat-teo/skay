@@ -23,6 +23,8 @@
       <main class="container">
         <StatsOverview ref="statsOverview" @filter-changed="handleFilterChange" />
 
+        <NetWorthChart ref="netWorthChart" class="mb-4" />
+
         <div class="row">
           <div class="col-12 col-lg-5 mb-4">
             <AccountsList ref="accountsList" />
@@ -43,10 +45,11 @@ import TransactionsList from './components/TransactionsList.vue';
 import StatsOverview from './components/StatsOverview.vue';
 import Login from './components/Login.vue';
 import Register from './components/Register.vue';
+import NetWorthChart from './components/NetWorthChart.vue';
 
 export default {
   name: 'App',
-  components: { AccountsList, TransactionsList, StatsOverview, Login, Register },
+  components: { AccountsList, TransactionsList, StatsOverview, Login, Register, NetWorthChart },
   data() {
     return {
       isLoggedIn: false,
@@ -84,6 +87,7 @@ export default {
     refreshDashboardData() {
       if (this.$refs.accountsList) this.$refs.accountsList.fetchAccounts();
       if (this.$refs.statsOverview) this.$refs.statsOverview.fetchStats();
+      if (this.$refs.netWorthChart) this.$refs.netWorthChart.refresh();
     }
   }
 }

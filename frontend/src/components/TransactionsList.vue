@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Transaction History</h2>
+      <h2 class="text-black">Transaction History</h2>
       <div>
         <button class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#addTransactionModal" @click="loadCategories; fetchAccounts()">
           + Add Transaction
@@ -18,6 +18,7 @@
             <th>Category</th>
             <th>Amount</th>
             <th>Details</th>
+            <th>Actions</th>  
           </tr>
         </thead>
         <tbody>
@@ -29,14 +30,30 @@
               {{ tx.type === 'expense' ? '-' : tx.type === 'income' ? '+' : '' }} {{ tx.amount.toFixed(2) }} €
             </td>
             <td><small class="text-muted">{{ tx.notes || '-' }}</small></td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-1" 
+                data-bs-toggle="modal" 
+                data-bs-target="#editTransactionModal"
+                @click="selectedTransaction = tx">
+                Edit
+              </button>
+            </td>
           </tr>
           <tr v-if="transactions.length === 0">
-            <td colspan="5" class="text-center text-muted">No transactions registered for this period.</td>
+            <td colspan="6" class="text-center text-muted">No transactions registered for this period.</td>
           </tr>
         </tbody>
       </table>
     </div>
 
+    <!-- Edit Modal Component -->
+    <EditTransactionModal 
+      ref="editModal"
+      :transaction="selectedTransaction"
+      @transaction-updated="onTransactionUpdated"
+    />
+
+    <!-- Add Transaction Modal -->
     <div class="modal fade" id="addTransactionModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -95,6 +112,7 @@
                   No accounts found. Please create an account first.
                 </small>
               </div>
+              
               <div class="mb-3" v-if="newTransaction.type === 'income' || newTransaction.type === 'transfer'">
                 <label class="form-label">Destination Account</label>
                 <select class="form-select" v-model.number="newTransaction.account_destination_id" required :disabled="accounts.length === 0">
@@ -127,9 +145,12 @@
 
 <script>
 import axios from 'axios';
+import EditTransactionModal from './EditTransactionModal.vue';
+import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 export default {
   name: 'TransactionsList',
+  components: { EditTransactionModal },
   data() {
     return {
       transactions: [],
@@ -138,15 +159,21 @@ export default {
       filteredCategories: [],
       showInlineCategory: false,
       newCategoryName: '',
+      selectedTransaction: null,
       newTransaction: {
-         amount: 0.0, type: 'expense', notes: '',
-        category_id: null, account_source_id: null, account_destination_id: null
+        amount: 0.0, 
+        type: 'expense', 
+        notes: '',
+        category_id: null, 
+        account_source_id: null, 
+        account_destination_id: null
       }
     };
   },
   mounted() {
     this.fetchTransactions();
     this.loadCategories();
+    this.fetchAccounts();  // Added missing fetchAccounts
   },
   methods: {
     async fetchTransactions(startDate = null) {
@@ -159,6 +186,7 @@ export default {
         console.error(err);
       }
     },
+    
     async loadCategories() {
       try {
         const response = await axios.get('http://127.0.0.1:8000/api/categories');
@@ -168,7 +196,8 @@ export default {
         console.error(err);
       }
     },
-    async fetchAccounts(){
+    
+    async fetchAccounts() {
       try {
         const response = await axios.get('http://127.0.0.1:8000/api/accounts');
         this.accounts = response.data;
@@ -176,14 +205,17 @@ export default {
         console.error("Failed to load accounts:", err);
       }
     },
+    
     filterCategoriesByType() {
       this.filteredCategories = this.categories.filter(c => c.type === this.newTransaction.type);
       this.newTransaction.category_id = null;
     },
+    
     toggleInlineCategoryForm() {
       this.showInlineCategory = !this.showInlineCategory;
       this.newCategoryName = '';
     },
+    
     async addNewCategory() {
       if (!this.newCategoryName.trim()) return;
       try {
@@ -199,13 +231,15 @@ export default {
         console.error(err);
       }
     },
+    
     getCategoryName(id) {
       if (!id) return '-';
       const cat = this.categories.find(c => c.id === id);
       return cat ? cat.name : 'Unknown';
     },
+    
     async createTransaction() {
-      if(this.accounts.length === 0){
+      if (this.accounts.length === 0) {
         alert('Please create an account before adding transactions.');
         return;
       }
@@ -225,15 +259,41 @@ export default {
         alert(err.response?.data?.detail || 'Error saving transaction.');
       }
     },
+    
     formatDate(dateStr) {
       if (!dateStr) return '-';
       return new Date(dateStr).toLocaleDateString();
     },
+    
     typeBadgeClass(type) {
-      return { 'badge bg-danger': type === 'expense', 'badge bg-success': type === 'income', 'badge bg-warning text-dark': type === 'transfer' };
+      return { 
+        'badge bg-danger': type === 'expense', 
+        'badge bg-success': type === 'income', 
+        'badge bg-warning text-dark': type === 'transfer' 
+      };
     },
+    
     amountClass(type) {
-      return { 'text-danger fw-bold': type === 'expense', 'text-success fw-bold': type === 'income', 'text-warning fw-bold': type === 'transfer' };
+      return { 
+        'text-danger fw-bold': type === 'expense', 
+        'text-success fw-bold': type === 'income', 
+        'text-warning fw-bold': type === 'transfer' 
+      };
+    },
+    
+    openEditModal(transaction) {
+      this.selectedTransaction = transaction;
+      // Open the modal using Bootstrap JS
+      const modalElement = document.getElementById('editTransactionModal');
+      if (modalElement) {
+        const modal = new Modal(modalElement);
+        modal.show();
+      }
+    },
+    
+    onTransactionUpdated() {
+      this.fetchTransactions();
+      this.$emit('transaction-saved');
     }
   }
 };

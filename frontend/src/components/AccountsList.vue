@@ -1,12 +1,20 @@
 <template>
   <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Your Financial Accounts</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3 ">
+      <h2 class="text-black">Your Financial Accounts</h2>
       <div>
         <button class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#addAccountModal">
           + Add Account
         </button>
         <button class="btn btn-secondary btn-sm" @click="fetchAccounts">Refresh</button>
+      </div>
+    </div>
+
+     <div class="card mb-4 bg-gradient-primary text-black">
+      <div class="card-body">
+        <h6 class="card-title text-uppercase small mb-2">Total Net Worth</h6>
+        <h2 class="card-text mb-0 text-black">{{ totalNetWorth.toFixed(2) }} €</h2>
+        <small class="opacity-75">Sum of all account balances</small>
       </div>
     </div>
 
@@ -110,6 +118,11 @@ export default {
   },
   mounted() {
     this.fetchAccounts();
+  },
+  computed:{
+    totalNetWorth(){
+      return this.accounts.reduce((total,account) => total + account.balance,0)
+    }
   },
   methods: {
     // GET: Fetch all accounts from API
