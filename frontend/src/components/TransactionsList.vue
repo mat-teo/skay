@@ -37,6 +37,9 @@
                 @click="selectedTransaction = tx">
                 Edit
               </button>
+              <button class="btn btn-sm btn-outline-danger" @click="openDeleteModal(tx)" title="Delete">
+                 Delete
+              </button>
             </td>
           </tr>
           <tr v-if="transactions.length === 0">
@@ -51,6 +54,13 @@
       ref="editModal"
       :transaction="selectedTransaction"
       @transaction-updated="onTransactionUpdated"
+    />
+
+     <!-- Delete Modal -->
+    <DeleteTransactionModal
+      ref="deleteModal"
+      :transaction="selectedDeleteTransaction"
+      @transaction-deleted="onTransactionDeleted"
     />
 
     <!-- Add Transaction Modal -->
@@ -145,12 +155,13 @@
 
 <script>
 import axios from 'axios';
+import { Modal } from 'bootstrap';
 import EditTransactionModal from './EditTransactionModal.vue';
-import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import DeleteTransactionModal from './DeleteTransactionModal.vue';
 
 export default {
   name: 'TransactionsList',
-  components: { EditTransactionModal },
+  components: { EditTransactionModal, DeleteTransactionModal },
   data() {
     return {
       transactions: [],
@@ -160,6 +171,7 @@ export default {
       showInlineCategory: false,
       newCategoryName: '',
       selectedTransaction: null,
+      selectedDeleteTransaction: null,
       newTransaction: {
         amount: 0.0, 
         type: 'expense', 
@@ -294,6 +306,20 @@ export default {
     onTransactionUpdated() {
       this.fetchTransactions();
       this.$emit('transaction-saved');
+    }, 
+    openDeleteModal(transaction) {
+      this.selectedDeleteTransaction = transaction;
+      const modalElement = document.getElementById('deleteTransactionModal');
+      if (modalElement) {
+        const modal = new Modal(modalElement);
+        modal.show();
+      }
+    },
+    
+    onTransactionDeleted() {
+      this.fetchTransactions();
+      this.$emit('transaction-saved');
+      this.selectedDeleteTransaction = null;
     }
   }
 };

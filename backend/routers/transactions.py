@@ -91,3 +91,22 @@ def update_transaction(
     db.commit()
     db.refresh(transaction)
     return transaction
+
+@router.delete("/transactions/{transaction_id}")
+def delete_transaction(
+    transaction_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Delete an existing transaction."""
+    
+    # Get the transaction
+    transaction = db.get(Transaction, transaction_id)
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    
+    # Check ownership
+    if transaction.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    return finance.delete_transaction(transaction=transaction,db=db)

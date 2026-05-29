@@ -66,3 +66,30 @@ def process_transaction(transaction: Transaction, db: Session) -> Transaction:
     db.commit()
     db.refresh(transaction)
     return transaction
+
+def delete_transaction(transaction: Transaction, db: Session):
+    """Delete a transaction and revert the account balance."""
+    
+    if transaction.type == "expense":
+        account = db.get(Account, transaction.account_source_id)
+        if not account:
+            raise HTTPException(status_code=404, detail="Source account not found")
+        account.balance += transaction.amount
+        db.add(account)
+        
+    elif transaction.type == "income":
+        account = db.get(Account, transaction.account_destination_id)
+        if not account:
+            raise HTTPException(status_code=404, detail="Destination account not found")
+        account.balance -= transaction.amount
+        db.add(account)
+        
+    elif transaction.type == "transfer":
+        # For transfers, no balance change
+        pass
+    
+    # Delete the transaction
+    db.delete(transaction)
+    db.commit()
+    
+    return {"message": f"{transaction.type.capitalize()} deleted successfully"}
