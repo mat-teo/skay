@@ -34,6 +34,7 @@ export default {
   name: 'NetWorthChart',
   data() {
     return {
+      isMounted : false,
       chartInstance: null,
       loading: false,
       error: null,
@@ -41,8 +42,17 @@ export default {
       chartData: null
     }
   },
-  mounted() {
+  async mounted() {
+    this.isMounted = true
     this.fetchData();
+    //Force render after DOM is fully ready
+    this.$nextTick(() =>{
+      setTimeout(() => {
+        if(this.chartData && this.chartData.length > 0){
+          this.renderChart();
+        }
+      }, 200);
+    })
   },
   beforeDestroy() {
     if (this.chartInstance) {
@@ -121,9 +131,9 @@ export default {
       maintainAspectRatio: true,
       plugins: {
         tooltip: {
-          enabled: true,  // Tooltip abilitato
-          mode: 'index',   // Mostra tooltip per il punto più vicino
-          intersect: false, // Mostra anche se non interseca esattamente il punto
+          enabled: true,
+          mode: 'index',  
+          intersect: false,
           callbacks: {
             label: function(context) {
               let label = context.dataset.label || '';

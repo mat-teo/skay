@@ -9,13 +9,14 @@
       </div>
     </div>
 
-    <div class="table-responsive">
+    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;" >
       <table class="table table-striped table-hover align-middle">
         <thead class="table-dark">
           <tr>
             <th>Date</th>
             <th>Type</th>
             <th>Category</th>
+            <th>Account</th>
             <th>Amount</th>
             <th>Details</th>
             <th>Actions</th>  
@@ -26,6 +27,13 @@
             <td>{{ formatDate(tx.date) }}</td>
             <td><span :class="typeBadgeClass(tx.type)">{{ tx.type }}</span></td>
             <td><span class="badge bg-light text-dark border">{{ getCategoryName(tx.category_id) }}</span></td>
+            <td>
+              <span v-if="tx.type === 'expense'">from: {{ getAccountName(tx.account_source_id) }}</span>
+              <span v-if="tx.type === 'income'">to: {{ getAccountName(tx.account_destination_id) }}</span>
+              <span v-if="tx.type === 'transfer'">
+                {{ getAccountName(tx.account_source_id) }} → {{ getAccountName(tx.account_destination_id) }}
+              </span>
+            </td>
             <td :class="amountClass(tx.type)">
               {{ tx.type === 'expense' ? '-' : tx.type === 'income' ? '+' : '' }} {{ tx.amount.toFixed(2) }} €
             </td>
@@ -320,6 +328,27 @@ export default {
       this.fetchTransactions();
       this.$emit('transaction-saved');
       this.selectedDeleteTransaction = null;
+    },
+    getAccountName(accountId) {
+      if (!accountId) return '-';
+      const account = this.accounts.find(a => a.id === accountId);
+      return account ? account.name : 'Unknown';
+    }
+  },
+  props:{
+      dateFilters:{
+        type: Object,
+        default: () => ({start_date : null, end_date: null})
+      }
+  },
+  watch:{
+    dateFilters: {
+        handler(newFilters){
+          if (newFilters.start_date){
+            this.fetchTransactions(newFilters.startDate)
+          }
+        },
+        deep: true
     }
   }
 };

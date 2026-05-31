@@ -31,21 +31,28 @@
       <table class="table table-striped table-hover align-middle">
         <thead class="table-dark">
           <tr>
-            <th>ID</th>
             <th>Name</th>
             <th>Type</th>
             <th class="text-end">Current Balance</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="account in accounts" :key="account.id">
-            <td>{{ account.id }}</td>
             <td><strong>{{ account.name }}</strong></td>
             <td>
               <span :class="badgeClass(account.type)">{{ account.type }}</span>
             </td>
             <td class="text-end" :class="balanceClass(account.balance)">
               {{ account.balance.toFixed(2) }} €
+            </td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary me-1" @click="editAccount(account)">
+                  Edit
+                </button>
+                <button class="btn btn-sm btn-outline-danger" @click="deleteAccount(account)">
+                  Delete
+                </button>
             </td>
           </tr>
           <tr v-if="accounts.length === 0">
