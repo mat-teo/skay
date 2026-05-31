@@ -54,6 +54,8 @@ def get_net_worth_history(
     Returns a list of {date, net_worth} pairs with all dates filled.
     """
     
+    MAX_POINT_IN_RESULT = 25
+
     # 1. Get all accounts with their current balance
     accounts = db.exec(select(Account).where(Account.user_id == user_id)).all()
     
@@ -142,6 +144,10 @@ def get_net_worth_history(
             date_object = date_object - timedelta(1)
             aggregated.insert(0, {"date": str(date_object), "net_worth":0})
 
+    if len(aggregated) > MAX_POINT_IN_RESULT:
+        #Limiting the results to not have too many points in the graph
+        aggregated = aggregated[-MAX_POINT_IN_RESULT:]
+
     return {
         "data": aggregated,
         "interval": interval,
@@ -188,7 +194,6 @@ def aggregate_by_week(data_points: List[Dict]) -> List[Dict]:
         result.append(weekly[week_key])
 
     if len(result) == 1:
-        print(result)
         date_object = datetime.strptime(result[0]["date"], "%Y-%m-%d").date()
         date_object = date_object -timedelta(7)
         result.insert(0,{"date":date_object, "net_worth":0})

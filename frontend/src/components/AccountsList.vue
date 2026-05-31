@@ -47,10 +47,16 @@
               {{ account.balance.toFixed(2) }} €
             </td>
             <td>
-                <button class="btn btn-sm btn-outline-primary me-1" @click="editAccount(account)">
+                <button class="btn btn-sm btn-outline-primary me-1" 
+                data-bs-toggle="modal"
+                data-bs-target="#editAccountModal"
+                @click="selectedAccount = account">
                   Edit
                 </button>
-                <button class="btn btn-sm btn-outline-danger" @click="deleteAccount(account)">
+                <button class="btn btn-sm btn-outline-danger" 
+                data-bs-toggle="modal" 
+                data-bs-target="#deleteAccountModal"
+                @click="selectedDeleteAccount = account">
                   Delete
                 </button>
             </td>
@@ -61,6 +67,18 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Edit Account Modal -->
+    <EditAccountModal
+    :account="selectedAccount"
+    @account-updated="onAccountUpdated"
+    />
+
+     <!-- Delete Account Modal -->
+    <DeleteAccountModal 
+      :account="selectedDeleteAccount"
+      @account-deleted="onAccountDeleted"
+    />
 
     <div class="modal fade" id="addAccountModal" tabindex="-1" aria-labelledby="addAccountModalLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -107,15 +125,20 @@
 
 <script>
 import axios from 'axios';
+import EditAccountModal from './EditAccountModal.vue';
+import DeleteAccountModal from './DeleteAccountModal.vue';
 
 export default {
   name: 'AccountsList',
+  components: {EditAccountModal, DeleteAccountModal},
   data() {
     return {
       accounts: [],
       loading: false,
       submitting: false,
       error: null,
+      selectedAccount: null,
+      selectedDeleteAccount: null,
       newAccount: {
         name: '',
         type: 'bank',
@@ -168,6 +191,15 @@ export default {
       } finally {
         this.submitting = false;
       }
+    },
+    onAccountUpdated() {
+      this.fetchAccounts();
+      this.selectedAccount = null;
+    },
+    
+    onAccountDeleted() {
+      this.fetchAccounts();
+      this.selectedDeleteAccount = null;
     },
     badgeClass(type) {
       return {

@@ -196,12 +196,22 @@ export default {
     this.fetchAccounts();  // Added missing fetchAccounts
   },
   methods: {
-    async fetchTransactions(startDate = null) {
+    async fetchTransactions(startDate = null, endDate = null) {
       try {
         let url = 'http://127.0.0.1:8000/api/transactions';
-        if (startDate) url += `?start_date=${startDate}`;
+        const params = new URLSearchParams();
+        
+        if (startDate) params.append('start_date', startDate);
+        if (endDate) params.append('end_date', endDate);
+        
+        if (params.toString()) {
+          url += `?${params.toString()}`;
+        }
+        
         const response = await axios.get(url);
-        this.transactions = response.data;
+        this.transactions = response.data.sort((a, b) => 
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
       } catch (err) {
         console.error(err);
       }
@@ -341,14 +351,13 @@ export default {
         default: () => ({start_date : null, end_date: null})
       }
   },
-  watch:{
+  watch: {
     dateFilters: {
-        handler(newFilters){
-          if (newFilters.start_date){
-            this.fetchTransactions(newFilters.startDate)
-          }
-        },
-        deep: true
+      handler(newFilters) {
+        this.fetchTransactions(newFilters.start_date, newFilters.end_date);
+      },
+      deep: true,
+      immediate: true 
     }
   }
 };

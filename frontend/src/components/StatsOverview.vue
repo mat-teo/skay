@@ -97,6 +97,12 @@ export default {
       }
     }
   },
+  watch:{
+    periodType(){
+      this.currentOffset = 0;  // Reset the offset when period type changes
+      this.fetchStats();       // Fetch new stats
+    }
+  },
   mounted() {
     this.fetchStats();
   },

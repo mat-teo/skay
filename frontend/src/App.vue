@@ -79,10 +79,13 @@ export default {
       this.showRegister = false
     },
     handleFilterChange(filters) {
-      this.currentFilters = filters;
-      if (this.$refs.transactionsList) {
-        this.$refs.transactionsList.fetchTransactions(filters.start_date);
-      }
+       this.currentFilters = filters;
+      // Force transactions list to reload
+      this.$nextTicreck(() => {
+        if (this.$refs.transactionsList) {
+          this.$refs.transactionsList.fetchTransactions(filters.start_date);
+        }
+      });
     },
     refreshDashboardData() {
       if (this.$refs.accountsList) this.$refs.accountsList.fetchAccounts();
