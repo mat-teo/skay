@@ -137,6 +137,10 @@ def get_net_worth_history(
         aggregated = aggregate_by_week(data_points)
     else:
         aggregated = data_points
+        if len(aggregated) == 1:
+            date_object = datetime.strptime(aggregated[0]["date"], "%Y-%m-%d").date()
+            date_object = date_object - timedelta(1)
+            aggregated.insert(0, {"date": str(date_object), "net_worth":0})
 
     return {
         "data": aggregated,
@@ -159,6 +163,12 @@ def aggregate_by_month(data_points: List[Dict]) -> List[Dict]:
     result = []
     for month_key in sorted(monthly.keys()):
         result.append(monthly[month_key])
+    
+    if len(result) == 1:
+        date_object = datetime.strptime(result[0]["date"], "%Y-%m-%d").date()
+        date_object = date_object.replace(day=1) - timedelta(1)
+        key = f"{date_object.year}-{date_object.month}"
+        result.insert(0, {'date': key,'net_worth':0})
     return result
 
 
@@ -176,4 +186,10 @@ def aggregate_by_week(data_points: List[Dict]) -> List[Dict]:
     result = []
     for week_key in sorted(weekly.keys()):
         result.append(weekly[week_key])
+
+    if len(result) == 1:
+        print(result)
+        date_object = datetime.strptime(result[0]["date"], "%Y-%m-%d").date()
+        date_object = date_object -timedelta(7)
+        result.insert(0,{"date":date_object, "net_worth":0})
     return result

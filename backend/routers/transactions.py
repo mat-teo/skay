@@ -83,6 +83,12 @@ def update_transaction(
     if transaction.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
     
+     # Check if type changed and call edit_transaction
+    new_data = transaction_input.dict()
+    
+    if transaction.type != new_data.get("type"):
+        # Type changed - need full balance adjustment
+        finance.edit_transaction(transaction, new_data, db)
     # Update fields
     for key, value in transaction_input.dict().items():
         setattr(transaction, key, value)

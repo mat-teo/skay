@@ -93,3 +93,82 @@ def delete_transaction(transaction: Transaction, db: Session):
     db.commit()
     
     return {"message": f"{transaction.type.capitalize()} deleted successfully"}
+
+def edit_transaction(
+    old_transaction: Transaction, 
+    new_transaction_data: dict, 
+    db: Session
+):
+    """
+    Edit an existing transaction and adjust account balances accordingly.
+    
+    Handles cases where type, amount, or accounts change.
+    """
+    
+    # Check if type changed
+    type_changed = old_transaction.type != new_transaction_data.get("type")
+    
+    # Check if amount changed
+    amount_changed = old_transaction.amount != new_transaction_data.get("amount")
+    
+    # Check if accounts changed
+    source_changed = old_transaction.account_source_id != new_transaction_data.get("account_source_id")
+    dest_changed = old_transaction.account_destination_id != new_transaction_data.get("account_destination_id")
+    
+    # Case 1: Type changed (expense ↔ income)
+    if type_changed:
+        # Revert old transaction effect
+        if old_transaction.type == "expense":
+            # Old expense: remove from source account (add back)
+            old_account = db.get(Account, old_transaction.account_source_id)
+            if old_account:
+                old_account.balance += old_transaction.amount
+                db.add(old_account)
+        elif old_transaction.type == "income":
+            # Old income: remove from destination account (subtract)
+            old_account = db.get(Account, old_transaction.account_destination_id)
+            if old_account:
+                old_account.balance -= old_transaction.amount
+                db.add(old_account)
+        
+        # Apply new transaction effect
+        if new_transaction_data.get("type") == "expense":
+            new_account = db.get(Account, new_transaction_data.get("account_source_id"))
+            if new_account:
+                new_account.balance -= new_transaction_data.get("amount", 0)
+                db.add(new_account)
+        elif new_transaction_data.get("type") == "income":
+            new_account = db.get(Account, new_transaction_data.get("account_destination_id"))
+            if new_account:
+                new_account.balance += new_transaction_data.get("amount", 0)
+                db.add(new_account)
+    
+    # Case 2: Same type, but amount or account changed
+    else:
+        if old_transaction.type == "expense":
+            account = db.get(Account, old_transaction.account_source_id)
+            if account:
+                # Revert old amount
+                account.balance += old_transaction.amount
+                
+                # Apply new amount (if account changed, use new account)
+                if source_changed:
+                    account = db.get(Account, new_transaction_data.get("account_source_id"))
+                
+                account.balance -= new_transaction_data.get("amount", 0)
+                db.add(account)
+                
+        elif old_transaction.type == "income":
+            account = db.get(Account, old_transaction.account_destination_id)
+            if account:
+                # Revert old amount
+                account.balance -= old_transaction.amount
+                
+                # Apply new amount
+                if dest_changed:
+                    account = db.get(Account, new_transaction_data.get("account_destination_id"))
+                
+                account.balance += new_transaction_data.get("amount", 0)
+                db.add(account)
+    
+    return {"message": "Transaction updated successfully"}
