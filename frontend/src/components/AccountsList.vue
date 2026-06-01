@@ -186,7 +186,7 @@ export default {
         // Close the bootstrap modal programmatically by triggering click on close button
         document.getElementById('closeModalBtn').click();
       } catch (err) {
-        alert('Error creating account.');
+        this.$root.showToast('Error creating account.', "dange");
         console.error(err);
       } finally {
         this.submitting = false;

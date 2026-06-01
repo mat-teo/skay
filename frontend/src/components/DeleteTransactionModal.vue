@@ -107,7 +107,7 @@ export default {
         }
       } catch (err) {
         console.error('Delete failed:', err);
-        alert(err.response?.data?.detail || 'Error deleting transaction');
+        this.$root.showToast(err.response?.data?.detail || 'Error deleting transaction', "danger");
       } finally {
         this.deleting = false;
       }

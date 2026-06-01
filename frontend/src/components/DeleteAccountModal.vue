@@ -99,7 +99,7 @@ export default {
         if (closeBtn) closeBtn.click();
       } catch (err) {
         console.error('Delete failed:', err);
-        alert(err.response?.data?.detail || 'Error deleting account');
+        this.$root.showToast(err.response?.data?.detail || 'Error deleting account', "danger");
       } finally {
         this.deleting = false;
       }

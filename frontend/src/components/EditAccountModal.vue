@@ -90,7 +90,7 @@ export default {
         if (closeBtn) closeBtn.click();
       } catch (err) {
         console.error('Update failed:', err);
-        alert(err.response?.data?.detail || 'Error updating account');
+        this.$root.showToast(err.response?.data?.detail || 'Error updating account', "danger");
       } finally {
         this.updating = false;
       }

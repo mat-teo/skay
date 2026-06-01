@@ -270,7 +270,7 @@ export default {
     
     async createTransaction() {
       if (this.accounts.length === 0) {
-        alert('Please create an account before adding transactions.');
+        this.$root.showToast('Please create an account before adding transactions.', 'danger');
         return;
       }
       try {
@@ -286,7 +286,7 @@ export default {
         
         document.getElementById('closeTxModalBtn').click();
       } catch (err) {
-        alert(err.response?.data?.detail || 'Error saving transaction.');
+        this.$root.showToast(err.response?.data?.detail || 'Error saving transaction.', "danger");
       }
     },
     

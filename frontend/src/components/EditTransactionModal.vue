@@ -166,7 +166,7 @@ export default {
         document.getElementById('closeEditModalBtn').click();
       } catch (err) {
         console.error('Update failed:', err);
-        alert(err.response?.data?.detail || 'Error updating transaction');
+        this.$root.showToast(err.response?.data?.detail || 'Error updating transaction', "danger");
       } finally {
         this.updating = false;
       }
