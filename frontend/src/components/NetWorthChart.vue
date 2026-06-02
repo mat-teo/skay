@@ -32,6 +32,14 @@ Chart.register(...registerables);
 
 export default {
   name: 'NetWorthChart',
+  props:{
+    startDate: { type: String, default: '' },
+    endDate: { type: String, default: '' }
+  },
+  watch: {
+    startDate() { this.fetchData() },
+    endDate() { this.fetchData() }
+  },
   data() {
     return {
       isMounted : false,
@@ -66,7 +74,10 @@ export default {
       this.error = null;
       
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/transactions/net-worth?interval=${this.interval}`);
+        let url = "http://127.0.0.1:8000/api/transactions/net-worth?interval=" + this.interval
+        if (this.startDate) url += `&start_date=${this.startDate}`
+        if (this.endDate) url += `&end_date=${this.endDate}`
+        const response = await axios.get(url);
         this.chartData = response.data.data;
         
 
@@ -103,7 +114,7 @@ export default {
         if (this.interval === 'month') {
           return date.toLocaleDateString('default', { month: 'short', year: 'numeric' });
         } else if (this.interval === 'week') {
-          return `Week ${this.getWeekNumber(date)}`;
+          return d.date;
         }
         return date.toLocaleDateString();
       });
@@ -127,48 +138,53 @@ export default {
           }]
         },
         options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        tooltip: {
-          enabled: true,
-          mode: 'index',  
-          intersect: false,
-          callbacks: {
-            label: function(context) {
-              let label = context.dataset.label || '';
-              let value = context.parsed.y;
-              return `${label}: € ${value.toFixed(2)}`;
+          responsive: true,
+          maintainAspectRatio: true,
+
+          plugins: {
+            tooltip: {
+              enabled: true,
+              mode: 'index',
+              intersect: false,
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  let value = context.parsed.y;
+                  return `${label}: € ${value.toFixed(2)}`;
+                },
+                title: function(tooltipItems) {
+                  return tooltipItems[0].label;
+                }
+              }
             },
-            title: function(tooltipItems) {
-              return tooltipItems[0].label;
+
+            legend: {
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                boxWidth: 6
+              }
             }
-          }
-        }
-      },
-        legend: {
-          position: 'top',
-          labels: {
-            usePointStyle: true,
-            boxWidth: 6
-          }
-        }
-      },
-      scales: {
-        y: {
-          ticks: {
-            callback: function(value) {
-              return '€ ' + value.toFixed(2);
+          },
+
+          scales: {
+            y: {
+              min: 0,
+              ticks: {
+                callback: function(value) {
+                  return '€ ' + Number(value).toFixed(2);
+                }
+              }
             }
+          },
+
+          interaction: {
+            mode: 'nearest',
+            axis: 'x',
+            intersect: false
           }
         }
-      },
-      interaction: {
-        mode: 'nearest',
-        axis: 'x',
-        intersect: false
-      }
-      });
+      })
     },
     
     getWeekNumber(date) {

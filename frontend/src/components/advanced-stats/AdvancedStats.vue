@@ -3,135 +3,126 @@
     <h2 class="mb-4 text-black"> Advanced Statistics</h2>
     
     <!-- Date Range Picker -->
-    <DateRangePicker
-      v-model:startDate="filters.startDate"
-      v-model:endDate="filters.endDate"
-      @change="onDateRangeChange"
-    />
-    
-    <!-- Stats Summary Cards -->
-    <div class="row mb-4">
-      <div class="col-md-4">
-        <div class="card border-success">
-          <div class="card-body">
-            <h6 class="text-muted">Total Income</h6>
-            <h3 class="text-success">{{ totalIncome.toFixed(2) }} €</h3>
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label">Start Date</label>
+            <input type="date" class="form-control" v-model="tempStartDate">
+          </div>
+          <div class="col-md-5">
+            <label class="form-label">End Date</label>
+            <input type="date" class="form-control" v-model="tempEndDate">
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-primary w-100" @click="applyFilters">Apply</button>
           </div>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card border-danger">
-          <div class="card-body">
-            <h6 class="text-muted">Total Expenses</h6>
-            <h3 class="text-danger">{{ totalExpense.toFixed(2) }} €</h3>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card" :class="savingsClass">
-          <div class="card-body">
-            <h6 class="text-muted">Net Savings</h6>
-            <h3 :class="savingsTextClass">{{ netSavings.toFixed(2) }} €</h3>
+        
+        <div class="row mt-3">
+          <div class="col-12">
+            <div class="btn-group btn-group-sm" role="group">
+              <button type="button" class="btn btn-outline-secondary" @click="setQuickRange('month')">Last Month</button>
+              <button type="button" class="btn btn-outline-secondary" @click="setQuickRange('quarter')">Last Quarter</button>
+              <button type="button" class="btn btn-outline-secondary" @click="setQuickRange('year')">Last Year</button>
+              <button type="button" class="btn btn-outline-secondary" @click="setQuickRange('all')">All Time</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- Charts Grid -->
-    <div class="row g-4">
-      
-      <!-- Category Breakdowns -->
-      <div class="col-md-6">
-        <CategoryPieChart 
-          title="Expenses by Category"
-          type="expense"
-          :startDate="filters.startDate"
-          :endDate="filters.endDate"
-        />
-      </div>
-      <div class="col-md-6">
-        <CategoryPieChart 
-          title="Income by Category"
-          type="income"
-          :startDate="filters.startDate"
-          :endDate="filters.endDate"
-        />
-      </div>
-      
-      <!-- Monthly Comparison -->
-      <div class="col-12">
-        <MonthlyBarChart 
-          :startDate="filters.startDate"
-          :endDate="filters.endDate"
-        />
+    <!-- Net Worth Chart -->
+    <NetWorthChart
+      :key="`networth-${activeStartDate}-${activeEndDate}`"
+      :startDate="activeStartDate"
+      :endDate="activeEndDate"
+      ref="netWorthChart"
+    />
+    
+    <!-- Category Breakdown -->
+    <CategoryBreakdown
+      :key="`category-${categoryType}-${activeStartDate}-${activeEndDate}`"
+      v-model:type="categoryType"
+      :startDate="activeStartDate"
+      :endDate="activeEndDate"
+      ref="categoryChart"
+    />
+
+    
+    <!-- Period Comparison (placeholder) -->
+    <div class="card">
+      <div class="card-header">Period Comparison</div>
+      <div class="card-body text-center text-muted py-5">
+        Coming soon: Compare two periods
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-import DateRangePicker from './DateRangePicker.vue';
-import CategoryPieChart from './CategoryPieChart.vue';
-import MonthlyBarChart from './MonthlyBarChart.vue';
+import NetWorthChart from '../NetWorthChart.vue'
+import CategoryBreakdown from './CategoryBreakdown.vue'
 
 export default {
   name: 'AdvancedStats',
-  components: { DateRangePicker, CategoryPieChart, MonthlyBarChart },
+  components: { NetWorthChart, CategoryBreakdown },
   data() {
     return {
-      filters: {
-        startDate: '',
-        endDate: ''
-      },
-      totalIncome: 0,
-      totalExpense: 0
-    }
-  },
-  computed: {
-    netSavings() {
-      return this.totalIncome - this.totalExpense
-    },
-    savingsClass() {
-      if (this.netSavings > 0) return 'border-success'
-      if (this.netSavings < 0) return 'border-danger'
-      return 'border-secondary'
-    },
-    savingsTextClass() {
-      if (this.netSavings > 0) return 'text-success'
-      if (this.netSavings < 0) return 'text-danger'
-      return 'text-secondary'
+      // Temporary values (what user sees in inputs)
+      tempStartDate: '',
+      tempEndDate: '',
+      // Active values (what charts actually use)
+      activeStartDate: '',
+      activeEndDate: '',
+      categoryType: 'expense'
     }
   },
   mounted() {
-    // Set default range: current month
-    const now = new Date()
-    const start = new Date(now.getFullYear(), now.getMonth(), 1)
-    this.filters.startDate = start.toISOString().split('T')[0]
-    this.filters.endDate = now.toISOString().split('T')[0]
+    // Set default dates: last 6 months
+    const end = new Date()
+    const start = new Date()
+    start.setMonth(end.getMonth() - 6)
     
-    this.fetchTotals()
+    const startStr = start.toISOString().split('T')[0]
+    const endStr = end.toISOString().split('T')[0]
+    
+    this.tempStartDate = startStr
+    this.tempEndDate = endStr
+    this.activeStartDate = startStr
+    this.activeEndDate = endStr
   },
   methods: {
-    async fetchTotals() {
-      try {
-        let url = 'http://127.0.0.1:8000/api/transactions/stats'
-        const params = new URLSearchParams()
-        if (this.filters.startDate) params.append('start_date', this.filters.startDate)
-        if (this.filters.endDate) params.append('end_date', this.filters.endDate)
-        if (params.toString()) url += `?${params.toString()}`
-        console.log('Fetching stats from:', url) 
-        const response = await axios.get(url)
-        console.log('Stats response:', response.data)
-        this.totalIncome = response.data.total_income
-        this.totalExpense = response.data.total_expense
-      } catch (err) {
-        console.error('Failed to fetch totals:', err)
-      }
+    applyFilters() {
+      // Only update active dates when Apply is clicked
+      this.activeStartDate = this.tempStartDate
+      this.activeEndDate = this.tempEndDate
     },
     
-    onDateRangeChange() {
-      this.fetchTotals()
+    setQuickRange(range) {
+      const end = new Date()
+      const start = new Date()
+      
+      switch(range) {
+        case 'month':
+          start.setMonth(end.getMonth() - 1)
+          break
+        case 'quarter':
+          start.setMonth(end.getMonth() - 3)
+          break
+        case 'year':
+          start.setFullYear(end.getFullYear() - 1)
+          break
+        case 'all':
+          this.tempStartDate = ''
+          this.tempEndDate = ''
+          this.applyFilters()
+          return
+      }
+      
+      this.tempStartDate = start.toISOString().split('T')[0]
+      this.tempEndDate = end.toISOString().split('T')[0]
+      this.applyFilters()
     }
   }
 }
@@ -139,6 +130,6 @@ export default {
 
 <style scoped>
 .advanced-stats {
-  padding: 20px;
+  padding-bottom: 40px;
 }
 </style>

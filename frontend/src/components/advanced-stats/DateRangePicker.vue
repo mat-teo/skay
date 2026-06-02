@@ -11,16 +11,13 @@
           <input type="date" class="form-control" v-model="localEndDate" @change="emitChange">
         </div>
         <div class="col-md-2">
-          <button class="btn btn-primary w-100" @click="emitChange">
-            Apply
-          </button>
+          <button class="btn btn-primary w-100" @click="emitChange">Apply</button>
         </div>
       </div>
       
       <div class="row mt-3">
         <div class="col-12">
           <div class="btn-group btn-group-sm" role="group">
-            <button type="button" class="btn btn-outline-secondary" @click="setQuickRange('week')">Last Week</button>
             <button type="button" class="btn btn-outline-secondary" @click="setQuickRange('month')">Last Month</button>
             <button type="button" class="btn btn-outline-secondary" @click="setQuickRange('quarter')">Last Quarter</button>
             <button type="button" class="btn btn-outline-secondary" @click="setQuickRange('year')">Last Year</button>
@@ -65,9 +62,6 @@ export default {
       const start = new Date()
       
       switch(range) {
-        case 'week':
-          start.setDate(end.getDate() - 7)
-          break
         case 'month':
           start.setMonth(end.getMonth() - 1)
           break
