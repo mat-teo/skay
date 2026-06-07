@@ -73,6 +73,10 @@
       @delete="openDeleteModal"
     />
 
+     <button class="btn btn-outline-primary me-2 mt-4" @click="exportCSV">
+       Export CSV
+    </button>
+
     <!-- Modals -->
     <EditTransactionModal 
       :transaction="selectedTransaction"
@@ -371,6 +375,47 @@ export default {
       this.loadTransactions();
       this.$emit('transaction-saved');
       this.selectedDeleteTransaction = null;
+    },
+    async exportCSV() {
+      try {
+        const range = this.getDateRange();
+        let url = 'http://127.0.0.1:8000/api/transactions/export';
+        
+        if (range) {
+          const params = new URLSearchParams();
+          params.append('start_date', range.start_date.toISOString());
+          params.append('end_date', range.end_date.toISOString());
+          url += `?${params.toString()}`;
+        }
+        
+        // Use fetch with Authorization header
+        const token = localStorage.getItem('token');
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Export failed');
+        }
+        
+        // Get the blob and download
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(downloadUrl);
+        
+        this.$root.showToast('Export completed successfully', 'success');
+      } catch (err) {
+        console.error('Export failed:', err);
+        this.$root.showToast('Export failed', 'danger');
+      }
     }
   }
 };

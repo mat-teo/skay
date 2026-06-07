@@ -50,70 +50,44 @@ def get_net_worth_history(
 ) -> Dict[str, Any]:
     """
     Calculate net worth over time for charting.
-    
-    Args:
-        db: Database session
-        user_id: Current user ID
-        start_date: Start date filter (optional)
-        end_date: End date filter (optional)
-        interval: Aggregation level - 'day', 'week', or 'month'
-    
-    Returns:
-        Dictionary with data points for chart
     """
-    
     MAX_POINT_IN_RESULT = 25
 
     # Get all accounts for the user
     accounts = db.exec(select(Account).where(Account.user_id == user_id)).all()
     
-    # Get all transactions within date range
-    query = select(Transaction).where(Transaction.user_id == user_id)
-    if start_date:
-        query = query.where(Transaction.date >= start_date)
-    if end_date:
-        query = query.where(Transaction.date <= end_date)
-    
-    transactions = db.exec(query.order_by(Transaction.date)).all()
-    
     # Calculate current net worth (sum of all account balances)
     current_net_worth = sum(acc.balance for acc in accounts)
     
+    # Determine date range
+    today = datetime.now().date()
+    range_start = start_date.date() if start_date else (today - timedelta(days=30))
+    range_end = end_date.date() if end_date else today
+
+    # Get all transactions from range_start up to TODAY. 
+    # We do NOT filter by end_date here because we need all recent transactions 
+    # to accurately calculate the net worth backwards from today's balance.
+    query = select(Transaction).where(
+        Transaction.user_id == user_id,
+        Transaction.date >= range_start
+    )
+    transactions = db.exec(query.order_by(Transaction.date)).all()
+    
     # Map date -> net worth change
     changes_by_date = defaultdict(float)
-    
     for tx in transactions:
-        change = 0
-        if tx.type == "expense":
-            change = -tx.amount
-        elif tx.type == "income":
-            change = tx.amount
-        
+        change = tx.amount if tx.type == "income" else -tx.amount if tx.type == "expense" else 0
         date_key = tx.date.date() if hasattr(tx.date, 'date') else tx.date
         changes_by_date[date_key] += change
     
-    # Determine date range
-    # Priority: 1. User-provided dates, 2. First transaction, 3. Last 30 days
-    if start_date:
-        range_start = start_date.date()
-    elif transactions:
-        range_start = min(changes_by_date.keys())
-    else:
-        range_start = datetime.now().date() - timedelta(days=30)
-    
-    if end_date:
-        range_end = end_date.date()
-    else:
-        range_end = datetime.now().date()
-    
-    # Calculate net worth at range_start
-    # Start with current balance and subtract all changes that occurred after range_start
+    # Reverse calculation: Start from TODAY's net worth and walk backwards to range_start
     running_net_worth = current_net_worth
-    for date in sorted(changes_by_date.keys(), reverse=True):
-        if date >= range_start:
-            running_net_worth -= changes_by_date[date]
-        else:
-            break
+    current_calc_date = today
+    
+    while current_calc_date >= range_start:
+        if current_calc_date in changes_by_date:
+            running_net_worth -= changes_by_date[current_calc_date]
+        current_calc_date -= timedelta(days=1)
     
     # Build continuous date range from start to end
     all_dates = []
@@ -122,15 +96,14 @@ def get_net_worth_history(
         all_dates.append(current_date)
         current_date += timedelta(days=1)
     
-    # Build data points for every day
+    # Build data points for every day moving forward
     data_points = []
-    
     for date in all_dates:
         if date in changes_by_date:
             running_net_worth += changes_by_date[date]
         data_points.append({
             "date": date.isoformat(),
-            "net_worth": running_net_worth
+            "net_worth": round(running_net_worth, 2)
         })
     
     # Aggregate by selected interval
@@ -142,10 +115,10 @@ def get_net_worth_history(
         aggregated = data_points
         if len(aggregated) == 1:
             date_object = datetime.strptime(aggregated[0]["date"], "%Y-%m-%d").date()
-            date_object = date_object - timedelta(1)
-            aggregated.insert(0, {"date": str(date_object), "net_worth":0})
+            date_object = date_object - timedelta(days=1)
+            # Do not force net_worth to 0 here to prevent artificial chart spikes
+            aggregated.insert(0, {"date": str(date_object), "net_worth": aggregated[0]["net_worth"]})
 
-    
     # Limit points for chart performance
     if len(aggregated) > MAX_POINT_IN_RESULT:
         aggregated = aggregated[-MAX_POINT_IN_RESULT:]
@@ -157,13 +130,15 @@ def get_net_worth_history(
         "end_date": data_points[-1]["date"] if data_points else None
     }
 
+
 def aggregate_by_month(data_points: List[Dict]) -> List[Dict]:
     """Take last value of each month."""
     monthly = {}
     for point in data_points:
         date = datetime.fromisoformat(point["date"])
-        month_key = f"{date.year}-{date.month}"
-        # Keep the last occurrence of each month
+        # Use :02d to ensure single-digit months have a leading zero (e.g., "2024-02").
+        # This is critical for correct alphabetical sorting.
+        month_key = f"{date.year}-{date.month:02d}" 
         monthly[month_key] = point
     
     # Sort by date
@@ -173,9 +148,10 @@ def aggregate_by_month(data_points: List[Dict]) -> List[Dict]:
     
     if len(result) == 1:
         date_object = datetime.strptime(result[0]["date"], "%Y-%m-%d").date()
-        date_object = date_object.replace(day=1) - timedelta(1)
-        key = f"{date_object.year}-{date_object.month}"
-        result.insert(0, {'date': key,'net_worth':0})
+        date_object = date_object.replace(day=1) - timedelta(days=1)
+        key = f"{date_object.year}-{date_object.month:02d}"
+        # Propagate the actual net worth instead of 0 to keep the chart line flat
+        result.insert(0, {'date': key, 'net_worth': result[0]['net_worth']})
     return result
 
 
@@ -191,13 +167,9 @@ def aggregate_by_week(data_points: List[Dict]) -> List[Dict]:
         date = datetime.fromisoformat(point["date"])
         year, week, _ = date.isocalendar()
         week_key = f"{year}-{week:02d}"
-        
-        if week_key not in weekly:
-            weekly[week_key] = point
-        else:
-            existing_date = datetime.fromisoformat(weekly[week_key]["date"])
-            if date > existing_date:
-                weekly[week_key] = point
+        # Since data_points are already in chronological order, 
+        # we simply overwrite. The last one will be the end of the week.
+        weekly[week_key] = point
     
     # Build result with formatted labels
     result = []
@@ -215,21 +187,20 @@ def aggregate_by_week(data_points: List[Dict]) -> List[Dict]:
             "net_worth": point["net_worth"]
         })
     
-    # Add a zero point before first week for better chart display
+    # Add an initial point before first week for better chart display
     if len(result) == 1:
-        first_label = result[0]["date"]
-        # Extract start date from first label
-        first_start = first_label.split(" - ")[0]
-        day, month = map(int, first_start.split('/'))
-        # Calculate previous week's end date
-        year = datetime.now().year
-        first_date = datetime(year, month, day).date()
-        previous_week_end = first_date - timedelta(days=1)
+        # Safely get the actual date from the original object
+        first_date_str = list(weekly.values())[0]["date"]
+        first_date = datetime.fromisoformat(first_date_str).date()
+        
+        # Calculate exactly the previous week based on the real year and month
+        previous_week_end = first_date - timedelta(days=first_date.weekday() + 1)
         previous_week_start = previous_week_end - timedelta(days=6)
         
+        # Propagate the actual net worth instead of 0
         result.insert(0, {
             "date": f"{previous_week_start.strftime('%d/%m')} - {previous_week_end.strftime('%d/%m')}",
-            "net_worth": 0
+            "net_worth": result[0]["net_worth"]
         })
     
     return result
