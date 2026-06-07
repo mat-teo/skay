@@ -17,16 +17,16 @@
                 <input type="password" class="form-control" v-model="password" required>
               </div>
               <div v-if="error" class="alert alert-danger">{{ error }}</div>
-              <button type="submit" class="btn btn-dark w-100">Login</button>
+              <button type="submit" class="btn btn-dark w-100" :disabled="loading">
+                {{ loading ? 'Logging in...' : 'Login' }}
+              </button>
             </form>
-
-             <hr>
-            
+            <hr>
             <div class="text-center">
               <p class="mb-0">Don't have an account?</p>
-              <button @click="$emit('show-register')" class="btn btn-link">
+              <router-link to="/register" class="btn btn-link">
                 Register here
-              </button>
+              </router-link>
             </div>
           </div>
         </div>
@@ -36,8 +36,7 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { auth } from '../auth';
+import { auth } from '../auth'
 
 export default {
   name: 'Login',
@@ -45,17 +44,21 @@ export default {
     return {
       email: '',
       password: '',
+      loading: false,
       error: ''
     }
   },
   methods: {
     async handleLogin() {
-      try{
+      this.loading = true
+      this.error = ''
+      try {
         await auth.login(this.email, this.password)
-
-        this.$emit("login-success")
-      }catch(err){
+        this.$router.push('/dashboard')
+      } catch (err) {
         this.error = err.message
+      } finally {
+        this.loading = false
       }
     }
   }

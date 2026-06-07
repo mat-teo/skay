@@ -4,66 +4,36 @@
       <div class="col-md-6 col-lg-4">
         <div class="card shadow">
           <div class="card-header bg-dark text-white text-center">
-            <h4 class="mb-0">Create Account</h4>
+            <h4>Create Account</h4>
           </div>
           <div class="card-body">
             <form @submit.prevent="handleRegister">
               <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input 
-                  type="email" 
-                  class="form-control" 
-                  v-model="email" 
-                  required
-                >
+                <label>Email</label>
+                <input type="email" class="form-control" v-model="email" required>
               </div>
-              
               <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input 
-                  type="password" 
-                  class="form-control" 
-                  v-model="password" 
-                  required
-                  minlength="6"
-                >
-                <small class="text-muted">Minimum 6 characters</small>
+                <label>Password</label>
+                <input type="password" class="form-control" v-model="password" required minlength="6">
               </div>
-              
               <div class="mb-3">
-                <label class="form-label">Confirm Password</label>
-                <input 
-                  type="password" 
-                  class="form-control" 
-                  v-model="confirmPassword" 
-                  required
-                >
+                <label>Confirm Password</label>
+                <input type="password" class="form-control" v-model="confirmPassword" required>
               </div>
-              
               <div class="mb-3">
-                <label class="form-label">Base Currency</label>
+                <label>Base Currency</label>
                 <select class="form-select" v-model="baseCurrency">
                   <option value="EUR">EUR (€)</option>
                   <option value="USD">USD ($)</option>
                   <option value="GBP">GBP (£)</option>
                 </select>
               </div>
-              
-              <div v-if="error" class="alert alert-danger">
-                {{ error }}
-              </div>
-              
-              <button 
-                type="submit" 
-                class="btn btn-dark w-100" 
-                :disabled="loading"
-              >
+              <div v-if="error" class="alert alert-danger">{{ error }}</div>
+              <button type="submit" class="btn btn-dark w-100" :disabled="loading">
                 {{ loading ? 'Creating account...' : 'Register' }}
               </button>
             </form>
-            
             <hr>
-            
             <div class="text-center">
               <p class="mb-0">Already have an account?</p>
               <router-link to="/login" class="btn btn-link">
@@ -89,7 +59,7 @@ export default {
       confirmPassword: '',
       baseCurrency: 'EUR',
       loading: false,
-      error: null
+      error: ''
     }
   },
   methods: {
@@ -100,13 +70,11 @@ export default {
       }
       
       this.loading = true
-      this.error = null
+      this.error = ''
       try {
         await auth.register(this.email, this.password, this.baseCurrency)
-        // Auto-login after registration
         await auth.login(this.email, this.password)
-        
-        this.$emit('login-success')
+        this.$router.push('/dashboard')
       } catch (err) {
         this.error = err.message
       } finally {
