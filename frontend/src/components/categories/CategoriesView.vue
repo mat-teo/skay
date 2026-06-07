@@ -1,11 +1,13 @@
 <template>
   <div class="categories-view">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="mb-0 text-black">Categories</h2>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal" @click="resetAddModal">
+    <header class="page-header d-flex justify-content-between align-items-center mb-4 pb-2">
+      <div>
+        <h1 class="page-title mt-1 mb-0">Categories</h1>
+      </div>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal" @click="resetCategoryForm">
         + New Category
       </button>
-    </div>
+    </header>
 
     <CategoryTabs v-model="activeTab" />
 

@@ -6,6 +6,7 @@ import './style.css'
 import App from './App.vue'
 import './auth.js'
 import router from './router/index.js'
+import './assets/theme.css'
 
 const app = createApp(App)
 app.use(router)

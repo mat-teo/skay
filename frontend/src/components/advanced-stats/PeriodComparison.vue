@@ -1,133 +1,124 @@
 <template>
-  <div class="card mb-4">
-    <div class="card-header">
-      <h5 class="mb-0">Period Comparison</h5>
+  <div class="card shadow-sm border-0 mb-4" style="position: relative;">
+    <div class="card-header bg-white border-bottom py-3">
+      <h5 class="mb-0 fw-bold text-secondary">
+        <i class="bi bi-arrow-left-right me-2 text-primary"></i>Period Comparison Analysis
+      </h5>
     </div>
-    <div class="card-body">
-      <!-- Period Selectors -->
-      <div class="row g-3 mb-4">
+
+    <div class="card-body p-4" style="position: relative; min-height: 400px;">
+      
+      <div v-if="loading" class="position-absolute top-50 start-50 translate-middle text-center" style="z-index: 10; background: rgba(255,255,255,0.85); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+          <span class="visually-hidden">Loading analysis...</span>
+        </div>
+      </div>
+
+      <div class="row g-3 align-items-center mb-4 bg-light p-3 rounded border">
         <div class="col-md-5">
-          <label class="form-label">Period 1</label>
+          <label class="form-label fw-semibold text-muted small text-uppercase">Base Period (Period 1)</label>
           <div class="d-flex gap-2">
-            <input type="date" class="form-control" v-model="period1.start">
-            <span class="align-self-center">→</span>
-            <input type="date" class="form-control" v-model="period1.end">
+            <input type="date" class="form-control shadow-sm" v-model="period1.start">
+            <span class="align-self-center text-muted">to</span>
+            <input type="date" class="form-control shadow-sm" v-model="period1.end">
           </div>
         </div>
+
+        <div class="col-md-2 text-center mt-4 mt-md-0">
+          <span class="badge bg-primary px-3 py-2 rounded-pill shadow-sm fw-bold">VS</span>
+        </div>
+
         <div class="col-md-5">
-          <label class="form-label">Period 2</label>
+          <label class="form-label fw-semibold text-muted small text-uppercase">Comparison Period (Period 2)</label>
           <div class="d-flex gap-2">
-            <input type="date" class="form-control" v-model="period2.start">
-            <span class="align-self-center">→</span>
-            <input type="date" class="form-control" v-model="period2.end">
-          </div>
-        </div>
-        <div class="col-md-2 d-flex align-items-end">
-          <button class="btn btn-primary w-100" @click="fetchComparison" :disabled="loading">
-            {{ loading ? 'Loading...' : 'Compare' }}
-          </button>
-        </div>
-      </div>
-      
-      <!-- Quick select buttons -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <div class="btn-group btn-group-sm" role="group">
-            <button type="button" class="btn btn-outline-secondary" @click="setLastTwoMonths">Last 2 Months</button>
-            <button type="button" class="btn btn-outline-secondary" @click="setMonthVsPrevious">Current Month vs Previous</button>
-            <button type="button" class="btn btn-outline-secondary" @click="setYearVsPrevious">Current Year vs Previous</button>
+            <input type="date" class="form-control shadow-sm" v-model="period2.start">
+            <span class="align-self-center text-muted">to</span>
+            <input type="date" class="form-control shadow-sm" v-model="period2.end">
           </div>
         </div>
       </div>
-      
-      <!-- Loading State -->
-      <div v-if="loading" class="text-center py-5">
-        <div class="spinner-border text-primary"></div>
-      </div>
-      
-      <!-- Results -->
-      <div v-else-if="comparisonData" class="row">
-        <!-- Period Labels -->
-        <div class="col-12 mb-3">
-          <div class="row text-center fw-bold">
-            <div class="col-5 offset-1">{{ comparisonData.period1.start_date }} → {{ comparisonData.period1.end_date }}</div>
-            <div class="col-5">{{ comparisonData.period2.start_date }} → {{ comparisonData.period2.end_date }}</div>
-          </div>
+
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div class="btn-group btn-group-sm shadow-sm" role="group">
+          <button type="button" class="btn btn-outline-secondary px-3" @click="setLastTwoMonths">Last 2 Months</button>
+          <button type="button" class="btn btn-outline-secondary px-3" @click="setMonthVsPrevious">Month vs Previous</button>
+          <button type="button" class="btn btn-outline-secondary px-3" @click="setYearVsPrevious">Year vs Previous</button>
         </div>
         
-        <!-- Income Row -->
-        <div class="col-12 mb-3">
-          <div class="row align-items-center">
-            <div class="col-5 text-end">
-              <span class="text-success fw-bold">+€ {{ comparisonData.period1.income.toFixed(2) }}</span>
-            </div>
-            <div class="col-2 text-center">
-              <i class="bi bi-arrow-right"></i> Income
-            </div>
-            <div class="col-5 text-start">
-              <span class="text-success fw-bold">+€ {{ comparisonData.period2.income.toFixed(2) }}</span>
-              <span :class="comparisonData.comparison.income_change >= 0 ? 'text-success' : 'text-danger'" class="ms-2 small">
-                ({{ comparisonData.comparison.income_change >= 0 ? '+' : '' }}{{ comparisonData.comparison.income_change }}%)
-              </span>
+        <button class="btn btn-primary px-4 shadow-sm fw-bold" @click="fetchComparison" :disabled="loading">
+          <i class="bi bi-lightning-charge-fill me-1"></i> Run Comparison
+        </button>
+      </div>
+
+      <div v-if="error" class="alert alert-danger d-flex align-items-center m-2 shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div>{{ error }}</div>
+      </div>
+
+      <div v-else-if="comparisonData">
+        
+        <div class="row g-3 mb-4">
+          
+          <div class="col-lg-4">
+            <div class="card h-100 border-0 border-start border-4 border-success shadow-sm bg-white p-3">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-uppercase text-muted fw-bold small tracking-wider">Total Income</span>
+                <span :class="comparisonData.comparison.income_change >= 0 ? 'bg-success text-white' : 'bg-danger text-white'" class="badge rounded-pill px-2 py-1 font-monospace">
+                  {{ comparisonData.comparison.income_change >= 0 ? '↑' : '↓' }} {{ Math.abs(comparisonData.comparison.income_change) }}%
+                </span>
+              </div>
+              <div class="d-flex flex-column">
+                <div class="text-muted small">P1: <span class="fw-semibold text-dark">€ {{ comparisonData.period1.income.toFixed(2) }}</span></div>
+                <div class="fs-4 fw-extrabold text-success mt-1">P2: € {{ comparisonData.period2.income.toFixed(2) }}</div>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <!-- Expense Row -->
-        <div class="col-12 mb-3">
-          <div class="row align-items-center">
-            <div class="col-5 text-end">
-              <span class="text-danger fw-bold">-€ {{ comparisonData.period1.expense.toFixed(2) }}</span>
-            </div>
-            <div class="col-2 text-center">
-              <i class="bi bi-arrow-right"></i> Expenses
-            </div>
-            <div class="col-5 text-start">
-              <span class="text-danger fw-bold">-€ {{ comparisonData.period2.expense.toFixed(2) }}</span>
-              <span :class="comparisonData.comparison.expense_change <= 0 ? 'text-success' : 'text-danger'" class="ms-2 small">
-                ({{ comparisonData.comparison.expense_change >= 0 ? '+' : '' }}{{ comparisonData.comparison.expense_change }}%)
-              </span>
+
+          <div class="col-lg-4">
+            <div class="card h-100 border-0 border-start border-4 border-danger shadow-sm bg-white p-3">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-uppercase text-muted fw-bold small tracking-wider">Total Expenses</span>
+                <span :class="comparisonData.comparison.expense_change <= 0 ? 'bg-success text-white' : 'bg-danger text-white'" class="badge rounded-pill px-2 py-1 font-monospace">
+                  {{ comparisonData.comparison.expense_change >= 0 ? '↑' : '↓' }} {{ Math.abs(comparisonData.comparison.expense_change) }}%
+                </span>
+              </div>
+              <div class="d-flex flex-column">
+                <div class="text-muted small">P1: <span class="fw-semibold text-dark">€ {{ comparisonData.period1.expense.toFixed(2) }}</span></div>
+                <div class="fs-4 fw-extrabold text-danger mt-1">P2: € {{ comparisonData.period2.expense.toFixed(2) }}</div>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <!-- Cashflow Row (highlighted) -->
-        <div class="col-12 mb-3 p-3 bg-light rounded">
-          <div class="row align-items-center">
-            <div class="col-5 text-end">
-              <span :class="comparisonData.period1.cashflow >= 0 ? 'text-success' : 'text-danger'" class="fw-bold fs-5">
-                € {{ comparisonData.period1.cashflow.toFixed(2) }}
-              </span>
-            </div>
-            <div class="col-2 text-center fw-bold">
-              Cashflow
-            </div>
-            <div class="col-5 text-start">
-              <span :class="comparisonData.period2.cashflow >= 0 ? 'text-success' : 'text-danger'" class="fw-bold fs-5">
-                € {{ comparisonData.period2.cashflow.toFixed(2) }}
-              </span>
-              <span :class="comparisonData.comparison.cashflow_change >= 0 ? 'text-success' : 'text-danger'" class="ms-2 small fw-bold">
-                ({{ comparisonData.comparison.cashflow_change >= 0 ? '+' : '' }}{{ comparisonData.comparison.cashflow_change }}%)
-              </span>
+
+          <div class="col-lg-4">
+            <div class="card h-100 border-0 border-start border-4 border-primary shadow-sm bg-white p-3">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="text-uppercase text-muted fw-bold small tracking-wider">Net Cash Flow</span>
+                <span :class="comparisonData.comparison.cashflow_change >= 0 ? 'bg-success text-white' : 'bg-danger text-white'" class="badge rounded-pill px-2 py-1 font-monospace">
+                  {{ comparisonData.comparison.cashflow_change >= 0 ? '↑' : '↓' }} {{ Math.abs(comparisonData.comparison.cashflow_change) }}%
+                </span>
+              </div>
+              <div class="d-flex flex-column">
+                <div class="text-muted small">P1: <span class="fw-semibold text-dark">€ {{ comparisonData.period1.cashflow.toFixed(2) }}</span></div>
+                <div class="fs-4 fw-extrabold text-primary mt-1">P2: € {{ comparisonData.period2.cashflow.toFixed(2) }}</div>
+              </div>
             </div>
           </div>
+          
         </div>
-        
-        <!-- Bar Chart Comparison -->
-        <div class="col-12 mt-3">
-          <canvas ref="comparisonChart" style="height: 300px;"></canvas>
+
+        <div class="bg-light p-3 rounded border mt-2">
+          <div :style="{ opacity: loading ? 0.3 : 1 }" style="position: relative; height: 320px; width: 100%; transition: opacity 0.2s ease;">
+            <canvas :key="canvasKey" ref="comparisonChart"></canvas>
+          </div>
         </div>
+
       </div>
-      
-      <!-- No Data State -->
-      <div v-else-if="!loading && !error" class="text-center text-muted py-5">
-        Select two periods and click Compare
+
+      <div v-else-if="!loading" class="text-center text-muted py-5">
+        <i class="bi bi-calendar2-range d-block display-4 mb-3 text-black-50"></i>
+        <p class="mb-0">Select two periods above and click <strong>Run Comparison</strong> to generate insights.</p>
       </div>
-      
-      <!-- Error State -->
-      <div v-if="error" class="alert alert-danger mt-3">
-        {{ error }}
-      </div>
+
     </div>
   </div>
 </template>
@@ -145,45 +136,55 @@ export default {
       error: null,
       comparisonData: null,
       comparisonChart: null,
-      period1: {
-        start: '',
-        end: ''
-      },
-      period2: {
-        start: '',
-        end: ''
-      }
+      period1: { start: '', end: '' },
+      period2: { start: '', end: '' },
+      isUnmounted: false,
+      fetchCounter: 0,
+      canvasKey: 0 // Reactivity key used to isolate and safely rebuild the DOM element
     }
   },
   mounted() {
     this.setDefaultPeriods();
   },
   beforeUnmount() {
-    if (this.comparisonChart) {
-      this.comparisonChart.destroy();
-    }
+    this.isUnmounted = true;
+    this.safelyDestroyChart();
   },
   methods: {
+    // Gracefully clean up chart instance and detached memory structures
+    safelyDestroyChart() {
+      if (this.comparisonChart) {
+        try {
+          this.comparisonChart.destroy();
+        } catch (e) {
+          // Suppress runtime canvas destruction bubbles
+        }
+        this.comparisonChart = null;
+      }
+    },
+
+    // Set default standard dates on component initialization
     setDefaultPeriods() {
-      // Period 1: Last month
+      const now = new Date();
+      
+      // Period 1: Previous full month
       const lastMonth = new Date();
       lastMonth.setMonth(lastMonth.getMonth() - 1);
       const p1Start = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
       const p1End = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0);
       
-      // Period 2: Current month
-      const now = new Date();
+      // Period 2: Current month up to today
       const p2Start = new Date(now.getFullYear(), now.getMonth(), 1);
-      const p2End = now;
       
       this.period1.start = p1Start.toISOString().split('T')[0];
       this.period1.end = p1End.toISOString().split('T')[0];
       this.period2.start = p2Start.toISOString().split('T')[0];
-      this.period2.end = p2End.toISOString().split('T')[0];
+      this.period2.end = now.toISOString().split('T')[0];
       
       this.fetchComparison();
     },
     
+    // Quick Range: Previous Month vs Two Months Ago
     setLastTwoMonths() {
       const now = new Date();
       const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -199,6 +200,7 @@ export default {
       this.fetchComparison();
     },
     
+    // Quick Range: Current Month vs Full Previous Month
     setMonthVsPrevious() {
       const now = new Date();
       const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -213,6 +215,7 @@ export default {
       this.fetchComparison();
     },
     
+    // Quick Range: Current Year vs Entire Previous Year
     setYearVsPrevious() {
       const now = new Date();
       const currentYearStart = new Date(now.getFullYear(), 0, 1);
@@ -227,12 +230,19 @@ export default {
       this.fetchComparison();
     },
     
+    // Handle API calling and token counter tracking
     async fetchComparison() {
       if (!this.period1.start || !this.period1.end || !this.period2.start || !this.period2.end) {
-        this.error = 'Please select both periods';
+        this.error = 'Please fill out all start and end date variables';
         return;
       }
       
+      // Settle active charts instantly before dispatching network payload
+      this.safelyDestroyChart();
+      
+      this.fetchCounter++;
+      const currentFetchId = this.fetchCounter;
+
       this.loading = true;
       this.error = null;
       
@@ -246,62 +256,96 @@ export default {
           }
         });
         
+        // Block out-of-order execution hooks
+        if (currentFetchId !== this.fetchCounter || this.isUnmounted) return;
+
         this.comparisonData = response.data;
         
+        // Pivot the node key to isolate canvas renders cleanly inside the next Tick loop
+        this.canvasKey++;
         await this.$nextTick();
+        
+        if (currentFetchId !== this.fetchCounter || this.isUnmounted) return;
         this.renderComparisonChart();
       } catch (err) {
-        console.error('Comparison failed:', err);
-        this.error = err.response?.data?.detail || 'Failed to fetch comparison data';
+        if (currentFetchId !== this.fetchCounter || this.isUnmounted) return;
+        console.error('Comparison extraction failure:', err);
+        this.error = err.response?.data?.detail || 'Failed to retrieve period matching data';
       } finally {
-        this.loading = false;
+        if (currentFetchId === this.fetchCounter && !this.isUnmounted) {
+          this.loading = false;
+        }
       }
     },
     
+    // Render synchronous chart structure 
     renderComparisonChart() {
       const canvas = this.$refs.comparisonChart;
-      if (!canvas) return;
-      
-      if (this.comparisonChart) {
-        this.comparisonChart.destroy();
-      }
+      if (!canvas || this.isUnmounted) return;
       
       const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
       const data = this.comparisonData;
+      
+      // Visual labels representing the periods
+      const labelP1 = `Period 1 (${data.period1.start_date})`;
+      const labelP2 = `Period 2 (${data.period2.start_date})`;
       
       this.comparisonChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['Income', 'Expenses', 'Cashflow'],
+          labels: ['Income', 'Expenses', 'Net Cashflow'],
           datasets: [
             {
-              label: `${data.period1.start_date} → ${data.period1.end_date}`,
+              label: labelP1,
               data: [data.period1.income, data.period1.expense, data.period1.cashflow],
-              backgroundColor: '#3b82f6',
-              borderRadius: 4
+              backgroundColor: '#6366f1', // Premium Indigo
+              hoverBackgroundColor: '#4f46e5',
+              borderRadius: 6,
+              borderSkipped: false
             },
             {
-              label: `${data.period2.start_date} → ${data.period2.end_date}`,
+              label: labelP2,
               data: [data.period2.income, data.period2.expense, data.period2.cashflow],
-              backgroundColor: '#22c55e',
-              borderRadius: 4
+              backgroundColor: '#10b981', // Premium Emerald Green
+              hoverBackgroundColor: '#059669',
+              borderRadius: 6,
+              borderSkipped: false
             }
           ]
         },
         options: {
           responsive: true,
-          maintainAspectRatio: true,
+          maintainAspectRatio: false,
+          animation: false, // FONDAMENTALE: Blocks background async frame cycles completely
           plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                boxWidth: 12,
+                font: { weight: '600', size: 12 },
+                usePointStyle: true,
+                pointStyle: 'circle'
+              }
+            },
             tooltip: {
+              padding: 12,
+              cornerRadius: 8,
+              backgroundColor: 'rgba(15, 23, 42, 0.9)', // Dark Slate premium look
               callbacks: {
-                label: (ctx) => `€ ${ctx.raw.toFixed(2)}`
+                label: (ctx) => ` ${ctx.dataset.label}: € ${ctx.raw.toFixed(2)}`
               }
             }
           },
           scales: {
+            x: {
+              grid: { display: false } // Cleans up vertical chart background lines
+            },
             y: {
+              border: { dash: [5, 5] }, // Elegant dashed styling for horizontal lines
               ticks: {
-                callback: (v) => '€ ' + v.toFixed(2)
+                callback: (v) => '€ ' + Number(v).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
               }
             }
           }
@@ -311,3 +355,12 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.tracking-wider {
+  letter-spacing: 0.05em;
+}
+.fw-extrabold {
+  font-weight: 800;
+}
+</style>

@@ -6,7 +6,6 @@
         <button class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#addAccountModal">
           + Add Account
         </button>
-        <button class="btn btn-secondary btn-sm" @click="fetchAccounts">Refresh</button>
       </div>
     </div>
 
@@ -51,13 +50,13 @@
                 data-bs-toggle="modal"
                 data-bs-target="#editAccountModal"
                 @click="selectedAccount = account">
-                  Edit
+                  ✏️
                 </button>
                 <button class="btn btn-sm btn-outline-danger" 
                 data-bs-toggle="modal" 
                 data-bs-target="#deleteAccountModal"
                 @click="selectedDeleteAccount = account">
-                  Delete
+                  🗑️
                 </button>
             </td>
           </tr>
@@ -186,7 +185,7 @@ export default {
         // Close the bootstrap modal programmatically by triggering click on close button
         document.getElementById('closeModalBtn').click();
       } catch (err) {
-        this.$root.showToast('Error creating account.', "dange");
+        this.$root.showToast('Error creating account.', "danger");
         console.error(err);
       } finally {
         this.submitting = false;

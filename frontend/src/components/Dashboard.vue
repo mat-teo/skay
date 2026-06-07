@@ -1,5 +1,10 @@
 <template>
   <div>
+    <header class="page-header mb-4 pb-2">
+      <div>
+        <h1 class="page-title mt-1 mb-0">Dashboard</h1>
+      </div>
+    </header>
     <StatsOverview ref="statsOverview" @filter-changed="handleFilterChange" />
 
     <NetWorthChart ref="netWorthChart" class="mb-4" />
