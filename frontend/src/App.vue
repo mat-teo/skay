@@ -28,6 +28,13 @@
               Dashboard
             </button>
             <button 
+              class="btn btn-outline-light me-2" 
+              :class="{ 'active': currentView === 'transactions' }"
+              @click="currentView = 'transactions'"
+            >
+              Transactions
+            </button>
+            <button 
               class="btn btn-outline-light me-3" 
               :class="{ 'active': currentView === 'stats' }"
               @click="currentView = 'stats'"
@@ -42,7 +49,8 @@
       </nav>
 
       <main class="container">
-        <Dashboard v-if="currentView === 'dashboard'" ref="dashboard" />
+        <Dashboard v-if="currentView === 'dashboard'" @go-to-transactions="currentView = 'transactions'" />
+        <TransactionsView v-else-if="currentView === 'transactions'" />
         <AdvancedStats v-else-if="currentView === 'stats'" />
       </main>
     </div>
@@ -55,10 +63,11 @@ import Register from './components/Register.vue';
 import Dashboard from './components/Dashboard.vue';
 import AdvancedStats from './components/advanced-stats/AdvancedStats.vue';
 import ToastNotification from './components/ToastNotification.vue';
+import TransactionsView from './components/transactions/TransactionsView.vue';
 
 export default {
   name: 'App',
-  components: { Login, Register, Dashboard, AdvancedStats, ToastNotification },
+  components: { Login, Register, Dashboard, AdvancedStats,TransactionsView, ToastNotification },
   data() {
     return {
       isLoggedIn: false,

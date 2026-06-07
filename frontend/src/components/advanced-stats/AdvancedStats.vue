@@ -50,23 +50,20 @@
     />
 
     
-    <!-- Period Comparison (placeholder) -->
-    <div class="card">
-      <div class="card-header">Period Comparison</div>
-      <div class="card-body text-center text-muted py-5">
-        Coming soon: Compare two periods
-      </div>
-    </div>
+    <!-- Period Comparison -->
+    <PeriodComparison />
   </div>
 </template>
 
 <script>
 import NetWorthChart from '../NetWorthChart.vue'
 import CategoryBreakdown from './CategoryBreakdown.vue'
+import PeriodComparison from './PeriodComparison.vue';
+
 
 export default {
   name: 'AdvancedStats',
-  components: { NetWorthChart, CategoryBreakdown },
+  components: { NetWorthChart, CategoryBreakdown, PeriodComparison },
   data() {
     return {
       // Temporary values (what user sees in inputs)
