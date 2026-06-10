@@ -56,7 +56,8 @@ export default {
       localType: this.type,
       isUnmounted: false,
       fetchCounter: 0,
-      canvasKey: 0
+      canvasKey: 0,
+      lastCategoryMap: null
     }
   },
   watch: {
@@ -66,10 +67,12 @@ export default {
   },
   mounted() {
     this.fetchData()
+    window.addEventListener('theme-change',this.onThemeChange);
   },
   beforeUnmount() {
     this.isUnmounted = true;
     this.safelyDestroyChart();
+    window.removeEventListener('theme-change', this.onThemeChange)
   },
   methods: {
     safelyDestroyChart() {
@@ -80,6 +83,18 @@ export default {
           // Suppress thread bubbles
         }
         this.chart = null;
+      }
+    },
+
+    onThemeChange() {
+      if (this.chart) {
+        this.chart.destroy();
+        this.chart = null;
+      }
+      if (this.lastCategoryMap) {
+        this.$nextTick(() => {
+          this.renderChart(this.lastCategoryMap);
+        });
       }
     },
 
@@ -121,6 +136,12 @@ export default {
         
         this.hasData = categoryMap.size > 0
         
+        this.lastCategoryMap = categoryMap; // Store
+          if (this.hasData) {
+            await this.$nextTick();
+            this.renderChart(categoryMap);
+        }
+
         if (this.hasData) {
           this.canvasKey++; 
           await this.$nextTick() 
@@ -140,6 +161,10 @@ export default {
     },
     
     renderChart(categoryMap) {
+      const isDark = document.documentElement.classList.contains('dark-theme');
+      const textColor = isDark ? '#ffffff' : '#1d1d1f';
+      const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+      
       const canvas = this.$refs.chartCanvas
       if (!canvas || this.isUnmounted) return;
       
@@ -188,27 +213,29 @@ export default {
                 boxWidth: 10,
                 boxHeight: 10,
                 usePointStyle: true,
-                color: '#515154'
+                color: textColor
               }
             }
           },
           scales: {
             x: {
-              grid: { display: false },
+              grid: { color: gridColor },
               ticks: { 
-                font: { size: 11, color: '#86868b' },
+                font: { size: 11, color: textColor },
                 maxRotation: 35,
-                minRotation: 35
+                minRotation: 35,
+                color: textColor
               }
             },
             y: {
               grid: { 
-                color: 'rgba(0, 0, 0, 0.04)',
+                color: gridColor,
                 drawBorder: false
               },
               ticks: { 
-                font: { size: 11, color: '#86868b' },
-                callback: (v) => '€ ' + v.toFixed(0)
+                font: { size: 11, color: textColor },
+                callback: (v) => '€ ' + v.toFixed(0),
+                color: textColor
               }
             }
           }

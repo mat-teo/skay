@@ -13,19 +13,16 @@
           
           <div class="d-flex align-items-center gap-2">
             <div class="nav-capsule-wrapper d-flex">
-              <router-link class="nav-link-apple" to="/dashboard">
-                Dashboard
-              </router-link>
-              <router-link class="nav-link-apple" to="/transactions">
-                Transactions
-              </router-link>
-              <router-link class="nav-link-apple" to="/stats">
-                Stats
-              </router-link>
-              <router-link class="nav-link-apple" to="/categories">
-                Categories
-              </router-link>
+              <router-link class="nav-link-apple" to="/dashboard">Dashboard</router-link>
+              <router-link class="nav-link-apple" to="/transactions">Transactions</router-link>
+              <router-link class="nav-link-apple" to="/stats">Stats</router-link>
+              <router-link class="nav-link-apple" to="/categories">Categories</router-link>
             </div>
+
+            <!-- Dark Mode Toggle -->
+            <button class="btn-darkmode-apple" @click="toggleDarkMode" :title="isDark ? 'Light mode' : 'Dark mode'">
+              <i :class="isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill'"></i>
+            </button>
 
             <div class="v-divider ms-2 me-1"></div>
 
@@ -46,10 +43,18 @@
 <script>
 import ToastNotification from './components/ToastNotification.vue'
 import { auth } from './auth'
+import { useDarkMode } from './composables/useDarkMode'
+
+// Import dark theme CSS
+import './assets/theme-dark.css'
 
 export default {
   name: 'App',
   components: { ToastNotification },
+  setup() {
+    const { isDark, toggleDarkMode } = useDarkMode();
+    return { isDark, toggleDarkMode };
+  },
   data() {
     return {
       isLoggedIn: false
@@ -59,7 +64,6 @@ export default {
     this.checkAuth()
   },
   watch: {
-    // Watch for route changes to update auth state
     '$route'() {
       this.checkAuth()
     }
@@ -82,33 +86,70 @@ export default {
 </script>
 
 <style scoped>
-/* Core layout background setup for a cleaner overall UI canvas */
+/* Existing styles plus dark mode toggle button */
+
+.btn-darkmode-apple {
+  background: none;
+  border: none;
+  color: #515154;
+  font-size: 1.1rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-darkmode-apple:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  transform: scale(1.05);
+}
+
+.dark-theme .btn-darkmode-apple {
+  color: #8e8e93;
+}
+
+.dark-theme .btn-darkmode-apple:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
 .app-layout {
   min-height: 100vh;
   background-color: #f8f9fa;
+  transition: background-color 0.3s ease;
 }
 
-/* 1. APPLE GLASSMORPHISM NAVBAR */
+.dark-theme .app-layout {
+  background-color: #1c1c1e;
+}
+
 .custom-navbar {
   background: rgba(255, 255, 255, 0.75) !important;
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   padding: 12px 0;
   transition: background-color 0.3s ease;
 }
 
-/* 2. TYPOGRAPHY & BRANDING */
+.dark-theme .custom-navbar {
+  background: rgba(28, 28, 30, 0.85) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 .navbar-brand-apple {
   font-weight: 700;
   font-size: 1.25rem;
   letter-spacing: -0.6px;
   color: #1d1d1f;
   text-decoration: none;
-  transition: opacity 0.2s ease;
 }
-.navbar-brand-apple:hover {
-  opacity: 0.8;
+
+.dark-theme .navbar-brand-apple {
+  color: #ffffff;
 }
+
 .brand-gradient {
   background: linear-gradient(135deg, #4f46e5, #6366f1);
   -webkit-background-clip: text;
@@ -116,11 +157,14 @@ export default {
   margin-right: 2px;
 }
 
-/* 3. IOS-STYLE SEGMENTED NAVIGATION CAPSULE */
 .nav-capsule-wrapper {
   background-color: rgba(0, 0, 0, 0.04);
   padding: 4px;
   border-radius: 30px;
+}
+
+.dark-theme .nav-capsule-wrapper {
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .nav-link-apple {
@@ -133,32 +177,46 @@ export default {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Hover State */
 .nav-link-apple:hover {
   color: #1d1d1f;
   background-color: rgba(0, 0, 0, 0.02);
 }
 
-/* Native Vue Active Link State mimicking native Apple tab selection sliding cards */
+.dark-theme .nav-link-apple {
+  color: #8e8e93;
+}
+
+.dark-theme .nav-link-apple:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
 .nav-link-apple.router-link-active {
   background-color: #ffffff !important;
   color: #1d1d1f !important;
   font-weight: 600;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.06), 0px 0px 1px rgba(0, 0, 0, 0.04);
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.06);
 }
 
-/* 4. SLEEK LOGOUT INTERACTION */
+.dark-theme .nav-link-apple.router-link-active {
+  background-color: #3a3a3c !important;
+  color: #ffffff !important;
+}
+
 .v-divider {
   width: 1px;
   height: 20px;
   background-color: rgba(0, 0, 0, 0.12);
-  align-self: center;
+}
+
+.dark-theme .v-divider {
+  background-color: rgba(255, 255, 255, 0.12);
 }
 
 .btn-logout-apple {
   background: none;
   border: none;
-  color: #e11d48; /* Sophisticated structural iOS Red */
+  color: #e11d48;
   font-size: 0.88rem;
   font-weight: 500;
   padding: 6px 14px;
@@ -170,6 +228,10 @@ export default {
 
 .btn-logout-apple:hover {
   background-color: rgba(225, 29, 72, 0.08);
+}
+
+.dark-theme .btn-logout-apple:hover {
+  background-color: rgba(225, 29, 72, 0.15);
 }
 
 .main-content {

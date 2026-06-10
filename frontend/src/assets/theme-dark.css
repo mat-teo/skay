@@ -1,0 +1,636 @@
+/* ============================================
+   DARK MODE - SKAY FINANCE
+   ============================================ */
+
+/* Theme variables */
+.dark-theme {
+  --apple-black: #ffffff;
+  --apple-gray-text: #8e8e93;
+  --apple-bg: #1c1c1e;
+  --apple-card-radius: 16px;
+  --apple-input-radius: 10px;
+  --apple-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+  --apple-premium-indigo: #6366f1;
+}
+
+/* Body */
+.dark-theme body {
+  background-color: #1c1c1e !important;
+  color: #ffffff !important;
+}
+
+/* Cards */
+.dark-theme .card {
+  background-color: #2c2c2e !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark-theme .card-header {
+  background-color: #2c2c2e !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+.dark-theme .card-body {
+  background-color: #2c2c2e !important;
+  color: #ffffff !important;
+}
+
+/* Titoli */
+.dark-theme h1,
+.dark-theme h2,
+.dark-theme h3,
+.dark-theme h4,
+.dark-theme h5,
+.dark-theme h6,
+.dark-theme .page-title {
+  color: #ffffff !important;
+}
+
+/* Testi generali */
+.dark-theme p,
+.dark-theme span,
+.dark-theme div,
+.dark-theme label,
+.dark-theme .form-label,
+.dark-theme .text-muted {
+  color: #e5e5e7 !important;
+}
+
+/* Tabelle */
+.dark-theme .table {
+  color: #ffffff !important;
+}
+
+.dark-theme .table thead th {
+  background-color: #1c1c1e !important;
+  color: #8e8e93 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-theme .table tbody td {
+  background-color: #2c2c2e !important;
+  border-bottom-color: rgba(255, 255, 255, 0.03) !important;
+  color: #ffffff !important;
+}
+
+.dark-theme .table-hover tbody tr:hover td {
+  background-color: #3a3a3c !important;
+}
+
+/* Input e Select */
+.dark-theme .form-control,
+.dark-theme .form-select {
+  background-color: #1c1c1e !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.dark-theme .form-control:focus,
+.dark-theme .form-select:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+}
+
+.dark-theme .form-control::placeholder {
+  color: #6c6c70 !important;
+}
+
+/* Badge bg-light */
+.dark-theme .badge.bg-light {
+  background-color: #3a3a3c !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Button outline */
+.dark-theme .btn-outline-light {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+.dark-theme .btn-outline-light:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Navbar */
+.dark-theme .custom-navbar {
+  background: rgba(28, 28, 30, 0.85) !important;
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-theme .navbar-brand-apple {
+  color: #ffffff !important;
+}
+
+.dark-theme .nav-link-apple {
+  color: #8e8e93 !important;
+}
+
+.dark-theme .nav-link-apple:hover {
+  color: #ffffff !important;
+}
+
+.dark-theme .nav-link-apple.router-link-active {
+  background-color: #3a3a3c !important;
+  color: #ffffff !important;
+}
+
+/* Colors helpers */
+.dark-theme .text-success {
+  color: #22c55e !important;
+}
+
+.dark-theme .text-danger {
+  color: #ef4444 !important;
+}
+
+.dark-theme .text-primary {
+  color: #6366f1 !important;
+}
+
+/* Modal */
+.dark-theme .modal-content {
+  background-color: #2c2c2e !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-theme .modal-header,
+.dark-theme .modal-footer {
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-theme .btn-close {
+  filter: invert(1);
+}
+
+/* Toast */
+.dark-theme .toast {
+  background-color: #2c2c2e !important;
+}
+
+.dark-theme .toast-header {
+  background-color: #2c2c2e !important;
+  color: #ffffff !important;
+}
+
+/* Canvas (grafici) */
+.dark-theme canvas {
+  background-color: #2c2c2e !important;
+  border-radius: 12px;
+}
+
+/* Select options */
+.dark-theme select option {
+  background-color: #1c1c1e !important;
+  color: #ffffff !important;
+}
+
+/* ============================================
+   DARK MODE - PERIOD BARRA FILTRI (bg-light)
+   ============================================ */
+
+/* Barra period con bg-light */
+.dark-theme .bg-light {
+  background-color: #2c2c2e !important;
+}
+
+.dark-theme .bg-light .text-muted {
+  color: #8e8e93 !important;
+}
+
+.dark-theme .bg-light .badge.bg-secondary {
+  background-color: #3a3a3c !important;
+  color: #ffffff !important;
+}
+
+/* Bottoni outline-secondary nella barra periodi */
+.dark-theme .btn-outline-secondary {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #8e8e93 !important;
+}
+
+.dark-theme .btn-outline-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ============================================
+   DARK MODE - CARD HEADER CON SELECT
+   ============================================ */
+
+.dark-theme .card-header {
+  background-color: #2c2c2e !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+.dark-theme .card-header span {
+  color: #ffffff !important;
+}
+
+.dark-theme .card-header .form-select,
+.dark-theme .card-header select {
+  background-color: #1c1c1e !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-theme .card-header .form-select option,
+.dark-theme .card-header select option {
+  background-color: #1c1c1e !important;
+  color: #ffffff !important;
+}
+
+/* Dropdown arrow */
+.dark-theme .card-header .form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%238e8e93' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* ============================================
+   DARK MODE - BADGE SECONDARY
+   ============================================ */
+
+.dark-theme .badge.bg-secondary {
+  background-color: #3a3a3c !important;
+  color: #ffffff !important;
+}
+
+/* ============================================
+   DARK MODE - SHADOW SM
+   ============================================ */
+
+.dark-theme .shadow-sm {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+/* ============================================
+   DARK MODE - PERIOD BARRA FILTRI (bg-light)
+   ============================================ */
+
+/* Barra period con bg-light */
+.dark-theme .bg-light {
+  background-color: #2c2c2e !important;
+}
+
+.dark-theme .bg-light .text-muted {
+  color: #8e8e93 !important;
+}
+
+.dark-theme .bg-light .badge.bg-secondary {
+  background-color: #3a3a3c !important;
+  color: #ffffff !important;
+}
+
+/* Bottoni outline-secondary nella barra periodi */
+.dark-theme .btn-outline-secondary {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #8e8e93 !important;
+}
+
+.dark-theme .btn-outline-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ============================================
+   DARK MODE - CARD HEADER CON SELECT
+   ============================================ */
+
+.dark-theme .card-header {
+  background-color: #2c2c2e !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+.dark-theme .card-header span {
+  color: #ffffff !important;
+}
+
+.dark-theme .card-header .form-select,
+.dark-theme .card-header select {
+  background-color: #1c1c1e !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-theme .card-header .form-select option,
+.dark-theme .card-header select option {
+  background-color: #1c1c1e !important;
+  color: #ffffff !important;
+}
+
+/* Dropdown arrow */
+.dark-theme .card-header .form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%238e8e93' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* ============================================
+   DARK MODE - BADGE SECONDARY
+   ============================================ */
+
+.dark-theme .badge.bg-secondary {
+  background-color: #3a3a3c !important;
+  color: #ffffff !important;
+}
+
+/* ============================================
+   DARK MODE - SHADOW SM
+   ============================================ */
+
+.dark-theme .shadow-sm {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+/* Forza barra periodi */
+.dark-theme .d-flex.flex-wrap.gap-2.mb-4.bg-light.p-2.rounded.shadow-sm {
+  background-color: #2c2c2e !important;
+}
+
+.dark-theme .d-flex.flex-wrap.gap-2.mb-4.bg-light.p-2.rounded.shadow-sm .text-muted {
+  color: #8e8e93 !important;
+}
+
+.dark-theme .d-flex.flex-wrap.gap-2.mb-4.bg-light.p-2.rounded.shadow-sm .badge {
+  background-color: #3a3a3c !important;
+  color: #ffffff !important;
+}
+
+/* Forza card header */
+.dark-theme .card-header.d-flex.justify-content-between.align-items-center {
+  background-color: #2c2c2e !important;
+}
+
+.dark-theme .card-header.d-flex.justify-content-between.align-items-center span {
+  color: #ffffff !important;
+}
+
+.dark-theme .card-header.d-flex.justify-content-between.align-items-center select {
+  background-color: #1c1c1e !important;
+  color: #ffffff !important;
+}
+/* ============================================
+   DARK MODE - DASHBOARD CARD WRAPPER
+   ============================================ */
+
+.dark-theme .dashboard-card-wrapper {
+  background: transparent !important;
+}
+
+.dark-theme .dashboard-card-wrapper .card {
+  background-color: #2c2c2e !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-theme .dashboard-card-wrapper .card-header {
+  background-color: #2c2c2e !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-theme .dashboard-card-wrapper .card-header span {
+  color: #ffffff !important;
+}
+
+.dark-theme .dashboard-card-wrapper .card-header select,
+.dark-theme .dashboard-card-wrapper .card-header .form-select {
+  background-color: #1c1c1e !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-theme .dashboard-card-wrapper .card-body {
+  background-color: #2c2c2e !important;
+}
+
+/* ============================================
+   DARK MODE - PERIOD COMPARISON CARDS
+   ============================================ */
+
+/* Card with border-start (comparison cards) */
+.dark-theme .card.border-start {
+  background-color: #2c2c2e !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-theme .card.border-start.border-success {
+  border-left-color: #22c55e !important;
+}
+
+.dark-theme .card.border-start.border-danger {
+  border-left-color: #ef4444 !important;
+}
+
+.dark-theme .card.border-start.border-primary {
+  border-left-color: #6366f1 !important;
+}
+
+.dark-theme .card.border-start .bg-white {
+  background-color: #2c2c2e !important;
+}
+
+.dark-theme .card.border-start .text-uppercase.text-muted {
+  color: #8e8e93 !important;
+}
+
+.dark-theme .card.border-start .text-white {
+  color: #ffffff !important;
+}
+
+.dark-theme .card.border-start .text-dark {
+  color: #ffffff !important;
+}
+
+.dark-theme .card.border-start .text-success {
+  color: #22c55e !important;
+}
+
+.dark-theme .card.border-start .text-danger {
+  color: #ef4444 !important;
+}
+
+.dark-theme .card.border-start .text-primary {
+  color: #6366f1 !important;
+}
+
+.dark-theme .card.border-start .badge.bg-success {
+  background-color: #22c55e !important;
+}
+
+/* Font monospace */
+.dark-theme .font-monospace {
+  color: #ffffff !important;
+}
+
+.dark-theme .fs-4 {
+  color: #ffffff !important;
+}
+
+.dark-theme .fw-extrabold {
+  font-weight: 800;
+}
+
+/* ============================================
+   DARK MODE - INPUT SELEZIONATI
+   ============================================ */
+
+/* Input dopo che sono stati selezionati / riempiti */
+.dark-theme input:not(:placeholder-shown),
+.dark-theme .form-control:not(:placeholder-shown),
+.dark-theme input[value]:not([value=""]),
+.dark-theme select[value]:not([value=""]) {
+  background-color: #1c1c1e !important;
+  color: #ffffff !important;
+}
+
+/* Input autofill (Chrome specific) */
+.dark-theme input:-webkit-autofill,
+.dark-theme input:-webkit-autofill:hover,
+.dark-theme input:-webkit-autofill:focus,
+.dark-theme input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #1c1c1e inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Select selezionati */
+.dark-theme select:valid,
+.dark-theme .form-select:valid {
+  background-color: #1c1c1e !important;
+  color: #ffffff !important;
+}
+
+/* Tutti gli input in qualsiasi stato */
+.dark-theme input,
+.dark-theme select,
+.dark-theme .form-control,
+.dark-theme .form-select {
+  background-color: #1c1c1e !important;
+  color: #ffffff !important;
+}
+
+.dark-theme input:focus,
+.dark-theme select:focus,
+.dark-theme .form-control:focus,
+.dark-theme .form-select:focus {
+  background-color: #1c1c1e !important;
+  color: #ffffff !important;
+  border-color: #6366f1 !important;
+}
+
+/* Placeholder */
+.dark-theme input::placeholder,
+.dark-theme .form-control::placeholder {
+  color: #6c6c70 !important;
+}
+
+/* Disabled inputs */
+.dark-theme input:disabled,
+.dark-theme .form-control:disabled {
+  background-color: #2c2c2e !important;
+  color: #6c6c70 !important;
+}
+/* ============================================
+   DARK MODE - NAV LINK ACTIVE
+   ============================================ */
+
+/* Nav link generici */
+.dark-theme .nav-link {
+  color: #8e8e93 !important;
+}
+
+.dark-theme .nav-link:hover {
+  color: #ffffff !important;
+}
+
+.dark-theme .nav-link.active {
+  color: #6366f1 !important;
+  background-color: transparent !important;
+}
+
+/* Nav link nei tabs */
+.dark-theme .nav-tabs .nav-link {
+  border-color: transparent !important;
+  background-color: transparent !important;
+}
+
+.dark-theme .nav-tabs .nav-link.active {
+  color: #6366f1 !important;
+  border-bottom-color: #6366f1 !important;
+  background-color: transparent !important;
+}
+
+.dark-theme .nav-tabs {
+  border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Router link active nella navbar (Apple style) */
+.dark-theme .nav-link-apple.router-link-active,
+.dark-theme .router-link-active.nav-link {
+  background-color: #3a3a3c !important;
+  color: #ffffff !important;
+}
+
+/* Per i tabs nelle categorie (expense/income) */
+.dark-theme .nav-item .nav-link.active {
+  color: #6366f1 !important;
+  border-bottom: 2px solid #6366f1 !important;
+}
+
+.dark-theme .nav-item .nav-link:not(.active) {
+  color: #8e8e93 !important;
+}
+
+.dark-theme .nav-item .nav-link:not(.active):hover {
+  color: #ffffff !important;
+}
+/* ============================================
+   DARK MODE - CHART.JS TEXT COLORS
+   ============================================ */
+
+/* Forza i colori dei testi nei canvas (grafici) */
+.dark-theme canvas {
+  filter: none;
+}
+
+/* Chart.js specific - override via JavaScript è meglio, ma questi sono fallback */
+.dark-theme .chartjs-tooltip {
+  background-color: rgba(44, 44, 46, 0.95) !important;
+  color: #ffffff !important;
+}
+
+.dark-theme .chartjs-tooltip-body {
+  color: #ffffff !important;
+}
+
+.dark-theme .chartjs-tooltip-title {
+  color: #ffffff !important;
+}
+/* Forza span e div nelle comparison cards */
+.dark-theme .card .d-flex .text-muted,
+.dark-theme .card .d-flex .small {
+  color: #8e8e93 !important;
+}
+
+.dark-theme .card .d-flex .fw-semibold,
+.dark-theme .card .d-flex .fs-4,
+.dark-theme .card .d-flex .fw-extrabold {
+  color: #ffffff !important;
+}
+
+.dark-theme .card .d-flex .text-success {
+  color: #22c55e !important;
+}
+
+.dark-theme .card .d-flex .text-danger {
+  color: #ef4444 !important;
+}
+
+.dark-theme .card .d-flex .text-primary {
+  color: #6366f1 !important;
+}
+
+/* Backdrop loading overlay */
+.dark-theme .position-absolute.bg-white {
+  background-color: rgba(44, 44, 46, 0.85) !important;
+}

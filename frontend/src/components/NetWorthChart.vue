@@ -67,10 +67,12 @@ export default {
   },
   mounted() {
     this.fetchData();
+    window.addEventListener('theme-change',this.onThemeChange);
   },
   beforeUnmount() {
     this.isUnmounted = true;
     this.safelyDestroyChart();
+    window.removeEventListener('theme-change',this.onThemeChange);
   },
   methods: {
     safelyDestroyChart() {
@@ -120,8 +122,29 @@ export default {
         }
       }
     },
+
+    onThemeChange() {
+      // Destroy existing chart before re-rendering
+      if (this.chartInstance) {
+        this.chartInstance.destroy();
+        this.chartInstance = null;
+      }
+      // Re-render with current data
+      if (this.chartData && this.chartData.length > 0) {
+        this.$nextTick(() => {
+          this.renderChart();
+        });
+      }
+    },
     
     renderChart() {
+      const isDark = document.documentElement.classList.contains('dark-theme');
+
+      const textColor = isDark ? '#ffffff' : '#1d1d1f';
+      const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+      const tooltipBg = isDark ? 'rgba(44, 44, 46, 0.95)' : 'rgba(29, 29, 31, 0.9)';
+      
+
       const canvas = this.$refs.chartCanvas;
       if (!canvas || this.isUnmounted) return;
       
@@ -170,7 +193,7 @@ export default {
               enabled: true,
               mode: 'index',
               intersect: false,
-              backgroundColor: 'rgba(29, 29, 31, 0.9)',
+              backgroundColor: tooltipBg,
               titleColor: '#ffffff',
               bodyColor: '#e5e5e7',
               borderColor: 'rgba(255, 255, 255, 0.1)',
@@ -192,16 +215,16 @@ export default {
                 boxWidth: 10,
                 boxHeight: 10,
                 usePointStyle: true,
-                color: '#515154'
+                color: textColor
               }
             }
           },
           scales: {
             x: {
-              grid: { display: false },
+              grid: { color: gridColor},
               ticks: { 
                 font: { size: 11, family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto' },
-                color: '#86868b',
+                color: textColor,
                 maxRotation: 45,
                 minRotation: 45
               }
@@ -209,13 +232,13 @@ export default {
             y: {
               min: 0,
               grid: { 
-                color: 'rgba(0, 0, 0, 0.04)',
+                color: gridColor,
                 drawBorder: false,
                 lineWidth: 0.5
               },
               ticks: { 
                 font: { size: 11, family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto' },
-                color: '#86868b',
+                color: textColor,
                 callback: function(value) {
                   return '€ ' + value.toFixed(0);
                 }
