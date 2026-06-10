@@ -42,6 +42,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 export default {
   name: 'DeleteTransactionModal',
@@ -64,7 +65,7 @@ export default {
   methods: {
     async loadCategories() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/categories');
+        const response = await axios.get(API_URL + '/api/categories');
         this.categories = response.data;
       } catch (err) {
         console.error('Failed to load categories:', err);
@@ -95,7 +96,7 @@ export default {
       
       this.deleting = true;
       try {
-        await axios.delete(`http://127.0.0.1:8000/api/transactions/${this.transaction.id}`);
+        await axios.delete(`${API_URL}/api/transactions/${this.transaction.id}`);
         
         this.$emit('transaction-deleted');
         

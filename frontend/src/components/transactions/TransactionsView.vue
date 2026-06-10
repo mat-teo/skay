@@ -101,6 +101,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '../../config.js';
 import { Modal } from 'bootstrap';
 import TransactionFilters from './TransactionFilters.vue';
 import TransactionTable from './TransactionTable.vue';
@@ -274,7 +275,7 @@ export default {
       this.loading = true;
       try {
         const range = this.getDateRange();
-        let url = 'http://127.0.0.1:8000/api/transactions';
+        let url = API_URL + '/api/transactions';
         
         if (range) {
           const params = new URLSearchParams();
@@ -296,7 +297,7 @@ export default {
     
     async loadCategories() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/categories');
+        const response = await axios.get(API_URL + '/api/categories');
         this.categories = response.data;
       } catch (err) {
         console.error('Failed to load categories:', err);
@@ -305,7 +306,7 @@ export default {
     
     async loadAccounts() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/accounts');
+        const response = await axios.get(API_URL + '/api/accounts');
         this.accounts = response.data;
       } catch (err) {
         console.error('Failed to load accounts:', err);
@@ -381,7 +382,7 @@ export default {
     async exportCSV() {
       try {
         const range = this.getDateRange();
-        let url = 'http://127.0.0.1:8000/api/transactions/export';
+        let url =  API_URL + '/api/transactions/export';
         
         if (range) {
           const params = new URLSearchParams();

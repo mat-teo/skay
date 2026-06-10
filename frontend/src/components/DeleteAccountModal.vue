@@ -47,6 +47,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '../config';
 
 export default {
   name: 'DeleteAccountModal',
@@ -77,7 +78,7 @@ export default {
   methods: {
     async checkTransactions() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/transactions');
+        const response = await axios.get(API_URL +  '/api/transactions');
         const transactions = response.data;
         this.transactionCount = transactions.filter(t => 
           t.account_source_id === this.account?.id || 
@@ -92,7 +93,7 @@ export default {
     async handleDelete() {
       this.deleting = true;
       try {
-        await axios.delete(`http://127.0.0.1:8000/api/accounts/${this.account.id}`);
+        await axios.delete(`${API_URL}/api/accounts/${this.account.id}`);
         this.$emit('account-deleted');
         
         const closeBtn = document.getElementById('closeDeleteAccountModalBtn');

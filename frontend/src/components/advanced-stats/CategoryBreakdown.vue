@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import { API_URL } from '../../config';
 import axios from 'axios';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
@@ -107,7 +108,7 @@ export default {
       this.error = null
       
       try {
-        let url = 'http://127.0.0.1:8000/api/transactions'
+        let url = API_URL + '/api/transactions'
         const params = new URLSearchParams()
         
         if (this.startDate && this.startDate !== '') params.append('start_date', this.startDate)
@@ -116,7 +117,7 @@ export default {
         
         const [transactionsRes, categoriesRes] = await Promise.all([
           axios.get(url),
-          axios.get('http://127.0.0.1:8000/api/categories')
+          axios.get(API_URL + 'api/categories')
         ])
         
         if (currentFetchId !== this.fetchCounter || this.isUnmounted) return;

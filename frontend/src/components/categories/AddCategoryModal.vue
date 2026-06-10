@@ -32,6 +32,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 export default {
   name: 'AddCategoryModal',
@@ -61,7 +62,7 @@ export default {
     },
     async submit() {
       try {
-        const response = await axios.post('http://127.0.0.1:8000/api/categories', this.localCategory);
+        const response = await axios.post(API_URL + '/api/categories', this.localCategory);
         this.$emit('category-added', response.data);
         this.reset();
         document.getElementById('closeAddModalBtn').click();

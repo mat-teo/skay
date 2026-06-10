@@ -86,6 +86,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 export default {
   name: 'EditTransactionModal',
@@ -127,7 +128,7 @@ export default {
   methods: {
     async loadCategories() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/categories');
+        const response = await axios.get(API_URL + '/api/categories');
         this.categories = response.data;
         this.filterCategoriesByType();
       } catch (err) {
@@ -137,7 +138,7 @@ export default {
     
     async loadAccounts() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/accounts');
+        const response = await axios.get(API_URL + '/api/accounts');
         this.accounts = response.data;
       } catch (err) {
         console.error('Failed to load accounts:', err);
@@ -158,7 +159,7 @@ export default {
       this.updating = true;
       try {
         await axios.put(
-          `http://127.0.0.1:8000/api/transactions/${this.editedTransaction.id}`,
+          `${API_URL}/api/transactions/${this.editedTransaction.id}`,
           this.editedTransaction
         );
         

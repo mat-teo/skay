@@ -124,6 +124,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '../config.js';
 import EditAccountModal from './EditAccountModal.vue';
 import DeleteAccountModal from './DeleteAccountModal.vue';
 
@@ -159,7 +160,7 @@ export default {
       this.loading = true;
       this.error = null;
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/accounts');
+        const response = await axios.get(API_URL + '/api/accounts');
         this.accounts = response.data;
       } catch (err) {
         this.error = 'Failed to fetch accounts from backend. Is FastAPI running?';
@@ -172,7 +173,7 @@ export default {
     async createAccount() {
       this.submitting = true;
       try {
-        await axios.post('http://127.0.0.1:8000/api/accounts', this.newAccount);
+        await axios.post(API_URL + '/api/accounts', this.newAccount);
         
         // Refresh the list immediately
         await this.fetchAccounts();

@@ -45,6 +45,7 @@ import CategoryTable from './CategoryTable.vue';
 import AddCategoryModal from './AddCategoryModal.vue';
 import EditCategoryModal from './EditCategoryModal.vue';
 import DeleteCategoryModal from './DeleteCategoryModal.vue';
+import { API_URL } from '../../config.js';
 
 export default {
   name: 'CategoriesView',
@@ -76,7 +77,7 @@ export default {
   methods: {
     async loadCategories() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/categories');
+        const response = await axios.get(API_URL +  '/api/categories');
         this.categories = response.data;
       } catch (err) {
         console.error('Failed to load categories:', err);
@@ -86,7 +87,7 @@ export default {
     
     async loadTransactions() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/transactions');
+        const response = await axios.get(API_URL + '/api/transactions');
         this.transactions = response.data;
       } catch (err) {
         console.error('Failed to load transactions:', err);

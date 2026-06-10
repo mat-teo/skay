@@ -1,11 +1,16 @@
 <template>
   <div class="card h-100">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <span>
-        <i class="bi bi-pie-chart me-2"></i>
-        Expenses by Category
-      </span>
-      <span class="badge bg-secondary">{{ periodLabel }}</span>
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-pie-chart"></i>
+        <span>Expenses by Category</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-secondary">{{ periodLabel }}</span>
+        <router-link to="/stats" class="btn btn-sm btn-link text-decoration-none">
+          Details <i class="bi bi-arrow-right"></i>
+        </router-link>
+      </div>
     </div>
     <div class="card-body">
       <div v-if="loading" class="text-center py-5">
@@ -25,6 +30,7 @@
 <script>
 import axios from 'axios';
 import { Chart, registerables } from 'chart.js';
+import { API_URL } from '../../config';
 Chart.register(...registerables);
 
 export default {
@@ -44,7 +50,7 @@ export default {
   },
   mounted() {
     this.fetchData();
-    window.addEventListener('theme-change',this.onThemeChange);
+    window.addEventListener('theme-change', this.onThemeChange);
   },
   watch: {
     startDate() { this.fetchData(); },
@@ -52,7 +58,7 @@ export default {
   },
   beforeUnmount() {
     if (this.chart) this.chart.destroy();
-    window.removeEventListener('theme-change',this.onThemeChange);
+    window.removeEventListener('theme-change', this.onThemeChange);
   },
   methods: {
     async fetchData() {
@@ -66,7 +72,7 @@ export default {
       
       try {
         // Build URL with date filters
-        let url = 'http://localhost:8000/api/transactions';
+        let url = API_URL +  '/api/transactions';
         const params = new URLSearchParams();
         
         if (this.startDate) params.append('start_date', this.startDate);
@@ -75,7 +81,7 @@ export default {
         
         const [transactionsRes, categoriesRes] = await Promise.all([
           axios.get(url),
-          axios.get('http://localhost:8000/api/categories')
+          axios.get(API_URL + '/api/categories')
         ]);
         
         const transactions = transactionsRes.data;
@@ -100,17 +106,11 @@ export default {
         
         this.hasData = categoryMap.size > 0;
         
-         if (this.hasData) {
-            this.lastCategoryMap = categoryMap; // Store for theme change
-            await this.$nextTick();
-            this.renderChart(categoryMap);
-        }
-
         if (this.hasData) {
+          this.lastCategoryMap = categoryMap; // Store for theme change
           await this.$nextTick();
           this.renderChart(categoryMap);
         }
-
         
         this.setPeriodLabel();
       } catch (err) {
@@ -119,79 +119,79 @@ export default {
         this.loading = false;
       }
     },
+    
     onThemeChange() {
-        if (this.chart) {
+      if (this.chart) {
         this.chart.destroy();
         this.chart = null;
-        }
-        if (this.lastCategoryMap) {
+      }
+      if (this.lastCategoryMap) {
         this.$nextTick(() => {
-            this.renderChart(this.lastCategoryMap);
+          this.renderChart(this.lastCategoryMap);
         });
-        }
+      }
     },
     
     renderChart(categoryMap) {
-        const isDark = document.documentElement.classList.contains('dark-theme');
-        const textColor = isDark ? '#ffffff' : '#1d1d1f';
-        const tooltipBg = isDark ? 'rgba(44, 44, 46, 0.95)' : 'rgba(29, 29, 31, 0.9)';
-        
-
-        const canvas = this.$refs.chartCanvas;
-        if (!canvas) return;
-        
-        const ctx = canvas.getContext('2d');
-        
-        // Sort by amount descending
-        const sorted = Array.from(categoryMap.entries()).sort((a, b) => b[1] - a[1]);
-        const labels = sorted.map(item => item[0]);
-        const data = sorted.map(item => item[1]);
-        
-        // Apple-style colors
-        const colors = [
-            '#4f46e5', '#22c55e', '#ef4444', '#f59e0b', '#06b6d4',
-            '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1'
-        ];
-        
-        this.chart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: colors.slice(0, labels.length),
-                borderWidth: 0,
-            }]
+      const isDark = document.documentElement.classList.contains('dark-theme');
+      const textColor = isDark ? '#ffffff' : '#1d1d1f';
+      const tooltipBg = isDark ? 'rgba(44, 44, 46, 0.95)' : 'rgba(29, 29, 31, 0.9)';
+      
+      const canvas = this.$refs.chartCanvas;
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      
+      // Sort by amount descending
+      const sorted = Array.from(categoryMap.entries()).sort((a, b) => b[1] - a[1]);
+      const labels = sorted.map(item => item[0]);
+      const data = sorted.map(item => item[1]);
+      
+      // Apple-style colors
+      const colors = [
+        '#4f46e5', '#22c55e', '#ef4444', '#f59e0b', '#06b6d4',
+        '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1'
+      ];
+      
+      this.chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: colors.slice(0, labels.length),
+            borderWidth: 0,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            tooltip: {
+              backgroundColor: tooltipBg,
+              titleColor: '#ffffff',
+              bodyColor: '#e5e5e7',
+              cornerRadius: 8,
+              callbacks: {
+                label: (ctx) => {
+                  const total = data.reduce((a, b) => a + b, 0);
+                  const percentage = ((ctx.parsed / total) * 100).toFixed(1);
+                  return `${ctx.label}: € ${ctx.parsed.toFixed(2)} (${percentage}%)`;
+                }
+              }
             },
-            options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                tooltip: {
-                backgroundColor: tooltipBg,
-                titleColor: '#ffffff',
-                bodyColor: '#e5e5e7',
-                cornerRadius: 8,
-                callbacks: {
-                    label: (ctx) => {
-                    const total = data.reduce((a, b) => a + b, 0);
-                    const percentage = ((ctx.parsed / total) * 100).toFixed(1);
-                    return `${ctx.label}: € ${ctx.parsed.toFixed(2)} (${percentage}%)`;
-                    }
-                }
-                },
-                legend: {
-                position: 'right',
-                labels: {
-                    font: { size: 10 },
-                    boxWidth: 10,
-                    boxHeight: 10,
-                    color: textColor
-                }
-                }
+            legend: {
+              position: 'right',
+              labels: {
+                font: { size: 10 },
+                boxWidth: 10,
+                boxHeight: 10,
+                color: textColor
+              }
             }
-            }
-        });
+          }
+        }
+      });
     },
     
     setPeriodLabel() {
@@ -212,3 +212,22 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.btn-link {
+  padding: 0;
+  font-size: 0.75rem;
+}
+
+.btn-link:hover {
+  text-decoration: underline !important;
+}
+
+.d-flex.align-items-center.gap-2 {
+  gap: 0.5rem;
+}
+
+.bi-pie-chart {
+  font-size: 1rem;
+}
+</style>

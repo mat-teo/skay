@@ -1,12 +1,18 @@
-# Python (Ambiente virtuale e file temporanei)
+# Python 
 backend/venv/
 backend/__pycache__/
 backend/*.pyc
 backend/.pytest_cache/
 
-# Node/Vue (Dipendenze del frontend)
+# Node/Vue 
 frontend/node_modules/
 frontend/dist/
+frontend/.vscode
 
-# Sistema operativo
+# OS
 .DS_Store
+
+# Environment variables
+.env
+*.env.local
+*.env.production.local

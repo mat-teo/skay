@@ -49,6 +49,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 export default {
   name: 'RecentTransactions',
@@ -76,7 +77,7 @@ export default {
     async fetchData() {
       this.loading = true;
       try {
-        let url = 'http://localhost:8000/api/transactions';
+        let url = API_URL + '/api/transactions';
         const params = new URLSearchParams();
         
         if (this.startDate) params.append('start_date', this.startDate);
@@ -97,7 +98,7 @@ export default {
     
     async loadCategories() {
       try {
-        const response = await axios.get('http://localhost:8000/api/categories');
+        const response = await axios.get(API_URL + '/api/categories');
         this.categories = response.data;
       } catch (err) {
         console.error('Failed to load categories:', err);

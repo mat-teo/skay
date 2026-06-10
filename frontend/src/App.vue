@@ -36,6 +36,9 @@
       <main class="container main-content">
         <router-view />
       </main>
+
+
+      <GlobalFooter />
     </div>
   </div>
 </template>
@@ -44,13 +47,14 @@
 import ToastNotification from './components/ToastNotification.vue'
 import { auth } from './auth'
 import { useDarkMode } from './composables/useDarkMode'
+import GlobalFooter from './components/GlobalFooter.vue'
 
 // Import dark theme CSS
 import './assets/theme-dark.css'
 
 export default {
   name: 'App',
-  components: { ToastNotification },
+  components: { ToastNotification, GlobalFooter},
   setup() {
     const { isDark, toggleDarkMode } = useDarkMode();
     return { isDark, toggleDarkMode };

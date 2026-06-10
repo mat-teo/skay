@@ -118,6 +118,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '../../config';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
@@ -228,7 +229,7 @@ export default {
       this.error = null;
       
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/transactions/compare', {
+        const response = await axios.get(API_URL + '/api/transactions/compare', {
           params: {
             period1_start: this.period1.start,
             period1_end: this.period1.end,

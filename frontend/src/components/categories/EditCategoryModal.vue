@@ -32,6 +32,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 export default {
   name: 'EditCategoryModal',
@@ -58,7 +59,7 @@ export default {
     async submit() {
       if (!this.localCategory) return;
       try {
-        await axios.put(`http://127.0.0.1:8000/api/categories/${this.localCategory.id}`, this.localCategory);
+        await axios.put(`${API_URL}/api/categories/${this.localCategory.id}`, this.localCategory);
         this.$emit('category-updated', this.localCategory);
         document.getElementById('closeEditModalBtn').click();
       } catch (err) {

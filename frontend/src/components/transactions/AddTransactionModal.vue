@@ -85,6 +85,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 export default {
   name: 'AddTransactionModal',
@@ -134,7 +135,7 @@ export default {
     async addNewCategory() {
       if (!this.newCategoryName.trim()) return;
       try {
-        const response = await axios.post('http://127.0.0.1:8000/api/categories', {
+        const response = await axios.post(API_URL + '/api/categories', {
           name: this.newCategoryName.trim(),
           type: this.localTransaction.type
         });
@@ -153,7 +154,7 @@ export default {
         return;
       }
       try {
-        await axios.post('http://127.0.0.1:8000/api/transactions', this.localTransaction);
+        await axios.post(API_URL + '/api/transactions', this.localTransaction);
         
         // Reset form
         this.localTransaction = {

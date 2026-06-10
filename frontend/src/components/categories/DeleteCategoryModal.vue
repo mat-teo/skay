@@ -30,6 +30,8 @@
 <script>
 import axios from 'axios';
 import { Modal } from 'bootstrap';
+import { API_URL } from '../../config';
+
 
 export default {
   name: 'DeleteCategoryModal',
@@ -48,7 +50,7 @@ export default {
       if (!this.category) return;
       this.deleting = true;
       try {
-        await axios.delete(`http://127.0.0.1:8000/api/categories/${this.category.id}`);
+        await axios.delete(`${API_URL}/api/categories/${this.category.id}`);
         this.$emit('category-deleted', this.category.id);
         const modalElement = document.getElementById('deleteCategoryModal');
         if (modalElement) {

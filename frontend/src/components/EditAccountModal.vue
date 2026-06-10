@@ -46,6 +46,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '../config';
 
 export default {
   name: 'EditAccountModal',
@@ -78,7 +79,7 @@ export default {
       
       this.updating = true;
       try {
-        await axios.put(`http://127.0.0.1:8000/api/accounts/${this.editedAccount.id}`, {
+        await axios.put(`${API_URL}/api/accounts/${this.editedAccount.id}`, {
           name: this.editedAccount.name,
           type: this.editedAccount.type,
           balance: this.editedAccount.balance
