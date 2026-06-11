@@ -137,7 +137,6 @@ export default {
   font-size: 0.78rem;
   font-weight: 600;
   color: #86868b;
-  text-uppercase: true;
 }
 
 /* Clean transparent input styling inside the design capsule */
