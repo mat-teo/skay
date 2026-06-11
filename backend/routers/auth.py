@@ -2,10 +2,12 @@
 """
 Authentication routes for user registration and login.
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
+from slowapi.util import get_remote_address 
 from datetime import timedelta
+from slowapi import Limiter
 
 from database import get_db
 from models import User, UserCreate
@@ -18,9 +20,12 @@ from auth import (
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
+limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/login")
+@limiter.limit("5/minute") #max 5 login attemps per minute
 def login(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_db)
 ):
@@ -64,7 +69,9 @@ def login(
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
+@limiter.limit("3/minute")
 def register(
+    request: Request,
     user_data: UserCreate, 
     session: Session = Depends(get_db)
 ):

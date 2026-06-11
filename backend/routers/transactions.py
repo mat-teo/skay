@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import Optional
-from fastapi import APIRouter, Depends, Query
+from slowapi import Limiter
+from slowapi.util import get_remote_address 
+from fastapi import APIRouter, Depends, Query, Request
 from sqlmodel import Session, select
 from database import get_db
 from models import Transaction, TransactionCreate, User, TransactionCategory
@@ -9,8 +11,11 @@ from auth import get_current_user
 
 router = APIRouter(tags=["Transactions"])
 
+limiter = Limiter(key_func=get_remote_address)
+
 @router.post("/transactions", response_model=Transaction)
-def create_transaction(transaction_input: TransactionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+@limiter.limit("30/minute")
+def create_transaction(request: Request, transaction_input: TransactionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     db_transaction = Transaction(
         user_id=current_user.id,
         amount=transaction_input.amount,
@@ -99,7 +104,9 @@ def update_transaction(
     return transaction
 
 @router.delete("/transactions/{transaction_id}")
+@limiter.limit("30/minute")
 def delete_transaction(
+    request: Request,
     transaction_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
