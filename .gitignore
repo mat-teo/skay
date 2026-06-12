@@ -16,3 +16,4 @@ frontend/.vscode
 .env
 *.env.local
 *.env.production.local
+*.env.production

@@ -79,7 +79,7 @@ export default {
       
       this.updating = true;
       try {
-        await axios.put(`${API_URL}/api/accounts/${this.editedAccount.id}`, {
+        await axios.put(`${API_URL}/accounts/${this.editedAccount.id}`, {
           name: this.editedAccount.name,
           type: this.editedAccount.type,
           balance: this.editedAccount.balance

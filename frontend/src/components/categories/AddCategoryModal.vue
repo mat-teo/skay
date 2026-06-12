@@ -62,7 +62,7 @@ export default {
     },
     async submit() {
       try {
-        const response = await axios.post(API_URL + '/api/categories', this.localCategory);
+        const response = await axios.post(API_URL + '/categories', this.localCategory);
         this.$emit('category-added', response.data);
         this.reset();
         document.getElementById('closeAddModalBtn').click();

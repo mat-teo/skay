@@ -59,7 +59,7 @@ export default {
     async submit() {
       if (!this.localCategory) return;
       try {
-        await axios.put(`${API_URL}/api/categories/${this.localCategory.id}`, this.localCategory);
+        await axios.put(`${API_URL}/categories/${this.localCategory.id}`, this.localCategory);
         this.$emit('category-updated', this.localCategory);
         document.getElementById('closeEditModalBtn').click();
       } catch (err) {

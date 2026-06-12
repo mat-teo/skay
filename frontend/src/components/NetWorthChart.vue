@@ -96,7 +96,7 @@ export default {
       this.error = null;
       
       try {
-        let url = API_URL + "/api/transactions/net-worth?interval=" + this.interval
+        let url = API_URL + "/transactions/net-worth?interval=" + this.interval
         if (this.startDate) url += `&start_date=${this.startDate}`
         if (this.endDate) url += `&end_date=${this.endDate}`
         

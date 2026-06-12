@@ -77,7 +77,7 @@ export default {
     async fetchData() {
       this.loading = true;
       try {
-        let url = API_URL + '/api/transactions';
+        let url = API_URL + '/transactions';
         const params = new URLSearchParams();
         
         if (this.startDate) params.append('start_date', this.startDate);
@@ -98,7 +98,7 @@ export default {
     
     async loadCategories() {
       try {
-        const response = await axios.get(API_URL + '/api/categories');
+        const response = await axios.get(API_URL + '/categories');
         this.categories = response.data;
       } catch (err) {
         console.error('Failed to load categories:', err);

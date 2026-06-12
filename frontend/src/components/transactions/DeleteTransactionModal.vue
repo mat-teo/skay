@@ -65,7 +65,7 @@ export default {
   methods: {
     async loadCategories() {
       try {
-        const response = await axios.get(API_URL + '/api/categories');
+        const response = await axios.get(API_URL + '/categories');
         this.categories = response.data;
       } catch (err) {
         console.error('Failed to load categories:', err);
@@ -96,7 +96,7 @@ export default {
       
       this.deleting = true;
       try {
-        await axios.delete(`${API_URL}/api/transactions/${this.transaction.id}`);
+        await axios.delete(`${API_URL}/transactions/${this.transaction.id}`);
         
         this.$emit('transaction-deleted');
         

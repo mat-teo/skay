@@ -166,7 +166,7 @@ export default {
     async fetchStats() {
       try {
         const { start_date, end_date } = this.getDateRange();
-        let url = API_URL + '/api/transactions/stats';
+        let url = API_URL + '/transactions/stats';
         
         if (start_date) url += `?start_date=${start_date}`;
         if(end_date) url += `${start_date ? '&' : '?'}end_date=${encodeURIComponent(end_date)}`;

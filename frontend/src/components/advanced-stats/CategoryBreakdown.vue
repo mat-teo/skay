@@ -108,7 +108,7 @@ export default {
       this.error = null
       
       try {
-        let url = API_URL + '/api/transactions'
+        let url = API_URL + '/transactions'
         const params = new URLSearchParams()
         
         if (this.startDate && this.startDate !== '') params.append('start_date', this.startDate)
@@ -117,7 +117,7 @@ export default {
         
         const [transactionsRes, categoriesRes] = await Promise.all([
           axios.get(url),
-          axios.get(API_URL + 'api/categories')
+          axios.get(API_URL + '/categories')
         ])
         
         if (currentFetchId !== this.fetchCounter || this.isUnmounted) return;

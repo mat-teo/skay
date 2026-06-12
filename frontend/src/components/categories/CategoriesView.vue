@@ -77,7 +77,7 @@ export default {
   methods: {
     async loadCategories() {
       try {
-        const response = await axios.get(API_URL +  '/api/categories');
+        const response = await axios.get(API_URL +  '/categories');
         this.categories = response.data;
       } catch (err) {
         console.error('Failed to load categories:', err);
@@ -87,7 +87,7 @@ export default {
     
     async loadTransactions() {
       try {
-        const response = await axios.get(API_URL + '/api/transactions');
+        const response = await axios.get(API_URL + '/transactions');
         this.transactions = response.data;
       } catch (err) {
         console.error('Failed to load transactions:', err);

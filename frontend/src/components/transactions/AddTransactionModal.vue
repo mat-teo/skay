@@ -135,7 +135,7 @@ export default {
     async addNewCategory() {
       if (!this.newCategoryName.trim()) return;
       try {
-        const response = await axios.post(API_URL + '/api/categories', {
+        const response = await axios.post(API_URL + '/categories', {
           name: this.newCategoryName.trim(),
           type: this.localTransaction.type
         });
@@ -154,7 +154,7 @@ export default {
         return;
       }
       try {
-        await axios.post(API_URL + '/api/transactions', this.localTransaction);
+        await axios.post(API_URL + '/transactions', this.localTransaction);
         
         // Reset form
         this.localTransaction = {

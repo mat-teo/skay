@@ -128,7 +128,7 @@ export default {
   methods: {
     async loadCategories() {
       try {
-        const response = await axios.get(API_URL + '/api/categories');
+        const response = await axios.get(API_URL + '/categories');
         this.categories = response.data;
         this.filterCategoriesByType();
       } catch (err) {
@@ -138,7 +138,7 @@ export default {
     
     async loadAccounts() {
       try {
-        const response = await axios.get(API_URL + '/api/accounts');
+        const response = await axios.get(API_URL + '/accounts');
         this.accounts = response.data;
       } catch (err) {
         console.error('Failed to load accounts:', err);
@@ -159,7 +159,7 @@ export default {
       this.updating = true;
       try {
         await axios.put(
-          `${API_URL}/api/transactions/${this.editedTransaction.id}`,
+          `${API_URL}/transactions/${this.editedTransaction.id}`,
           this.editedTransaction
         );
         

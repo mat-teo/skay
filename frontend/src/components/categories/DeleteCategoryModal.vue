@@ -50,7 +50,7 @@ export default {
       if (!this.category) return;
       this.deleting = true;
       try {
-        await axios.delete(`${API_URL}/api/categories/${this.category.id}`);
+        await axios.delete(`${API_URL}/categories/${this.category.id}`);
         this.$emit('category-deleted', this.category.id);
         const modalElement = document.getElementById('deleteCategoryModal');
         if (modalElement) {

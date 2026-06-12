@@ -160,7 +160,7 @@ export default {
       this.loading = true;
       this.error = null;
       try {
-        const response = await axios.get(API_URL + '/api/accounts');
+        const response = await axios.get(API_URL + '/accounts');
         this.accounts = response.data;
       } catch (err) {
         this.error = 'Failed to fetch accounts from backend. Is FastAPI running?';
@@ -173,7 +173,7 @@ export default {
     async createAccount() {
       this.submitting = true;
       try {
-        await axios.post(API_URL + '/api/accounts', this.newAccount);
+        await axios.post(API_URL + '/accounts', this.newAccount);
         
         // Refresh the list immediately
         await this.fetchAccounts();

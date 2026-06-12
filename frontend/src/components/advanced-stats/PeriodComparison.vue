@@ -229,7 +229,7 @@ export default {
       this.error = null;
       
       try {
-        const response = await axios.get(API_URL + '/api/transactions/compare', {
+        const response = await axios.get(API_URL + '/transactions/compare', {
           params: {
             period1_start: this.period1.start,
             period1_end: this.period1.end,

@@ -275,7 +275,7 @@ export default {
       this.loading = true;
       try {
         const range = this.getDateRange();
-        let url = API_URL + '/api/transactions';
+        let url = API_URL + '/transactions';
         
         if (range) {
           const params = new URLSearchParams();
@@ -297,7 +297,7 @@ export default {
     
     async loadCategories() {
       try {
-        const response = await axios.get(API_URL + '/api/categories');
+        const response = await axios.get(API_URL + '/categories');
         this.categories = response.data;
       } catch (err) {
         console.error('Failed to load categories:', err);
@@ -306,7 +306,7 @@ export default {
     
     async loadAccounts() {
       try {
-        const response = await axios.get(API_URL + '/api/accounts');
+        const response = await axios.get(API_URL + '/accounts');
         this.accounts = response.data;
       } catch (err) {
         console.error('Failed to load accounts:', err);
@@ -382,7 +382,7 @@ export default {
     async exportCSV() {
       try {
         const range = this.getDateRange();
-        let url =  API_URL + '/api/transactions/export';
+        let url =  API_URL + '/transactions/export';
         
         if (range) {
           const params = new URLSearchParams();
