@@ -90,3 +90,25 @@ class StockPrice(SQLModel, table=True):
     ticker_or_currency: str = Field(primary_key=True)
     current_price: float
     last_updated: datetime = Field(default_factory=datetime.utcnow)
+
+# =======================
+# Budgets
+# =======================
+class BudgetBase(SQLModel):
+    name: str
+    category_id: Optional[int] = None
+    amount: float
+    period: str  # 'daily', 'weekly', 'monthly', 'quarterly', 'yearly'
+    start_date: datetime
+    end_date: Optional[datetime] = None
+    is_active: bool = True
+
+class BudgetCreate(BudgetBase):
+    pass
+
+class Budget(BudgetBase, table=True):
+    __tablename__ = "budgets"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)

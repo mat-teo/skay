@@ -17,6 +17,7 @@
               <router-link class="nav-link-apple" to="/transactions">Transactions</router-link>
               <router-link class="nav-link-apple" to="/stats">Stats</router-link>
               <router-link class="nav-link-apple" to="/categories">Categories</router-link>
+              <router-link class="nav-link-apple" to="/budgets">Budgets</router-link>
             </div>
 
             <!-- Dark Mode Toggle -->

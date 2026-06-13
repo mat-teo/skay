@@ -6,6 +6,7 @@ import CategoriesView from '../components/categories/CategoriesView.vue'
 import Login from '../components/Login.vue'
 import Register from '../components/Register.vue'
 import { auth } from '../auth'
+import BudgetsView from '../components/budgets/BudgetsView.vue'
 
 const routes = [
   {
@@ -47,6 +48,14 @@ const routes = [
     name: 'Categories',
     component: CategoriesView,
     meta: { requiresAuth: true }
+  },
+  {
+    path:"/budgets",
+    name:"Budgets",
+    component: BudgetsView,
+    meta:{
+      requiresAuth: true
+    }
   }
 ]
 

@@ -25,6 +25,12 @@ export default {
     }
   },
   methods: {
+    /**
+     * Display a toast notification
+     * @param {string} message - The message to display
+     * @param {string} type - Type: 'success', 'danger', 'error', 'warning', 'info'
+     * @param {string} title - Optional custom title
+     */
     show(message, type = 'success', title = '') {
       const id = Date.now()
       const titles = {
@@ -42,15 +48,25 @@ export default {
         title: title || titles[type] || 'Notification'
       })
       
+      // Auto-remove after 4 seconds
       setTimeout(() => {
         this.removeToast(id)
       }, 4000)
     },
     
+    /**
+     * Remove a toast by ID
+     * @param {number} id - Toast ID to remove
+     */
     removeToast(id) {
       this.toasts = this.toasts.filter(t => t.id !== id)
     },
     
+    /**
+     * Get Bootstrap icon class based on toast type
+     * @param {string} type - Toast type
+     * @returns {string} Icon class name
+     */
     toastIcon(type) {
       const icons = {
         success: 'bi bi-check-circle-fill',
@@ -62,7 +78,13 @@ export default {
       return icons[type] || icons.info
     },
     
+    /**
+     * Determine close button color based on toast type
+     * @param {string} type - Toast type
+     * @returns {string} Close button class
+     */
     toastCloseClass(type) {
+      // Dark backgrounds need white close button
       const darkBg = ['success', 'danger', 'error']
       return darkBg.includes(type) ? 'btn-close-white' : ''
     }
@@ -79,7 +101,7 @@ export default {
   z-index: 1100;
 }
 
-/* Base toast style */
+/* Base toast style with glassmorphism */
 .apple-toast {
   min-width: 280px;
   max-width: 380px;
@@ -109,10 +131,10 @@ export default {
 }
 
 /* ============================================
-   TIPI DI TOAST (COLORI SFUMATI)
+   TOAST TYPES (LIGHT THEME)
    ============================================ */
 
-/* Success - Verde delicato */
+/* Success toast */
 .toast-success .toast-header {
   color: #0a7e3b !important;
 }
@@ -120,7 +142,7 @@ export default {
   color: #22c55e;
 }
 
-/* Danger/Error - Rosso delicato */
+/* Danger/Error toast */
 .toast-danger .toast-header,
 .toast-error .toast-header {
   color: #be123c !important;
@@ -130,7 +152,7 @@ export default {
   color: #e11d48;
 }
 
-/* Warning - Arancione delicato */
+/* Warning toast */
 .toast-warning .toast-header {
   color: #b45309 !important;
 }
@@ -138,7 +160,7 @@ export default {
   color: #f59e0b;
 }
 
-/* Info - Blu delicato */
+/* Info toast */
 .toast-info .toast-header {
   color: #1e40af !important;
 }
@@ -147,15 +169,15 @@ export default {
 }
 
 /* ============================================
-   ANIMAZIONI
+   ANIMATIONS
    ============================================ */
 
-/* Animazione di entrata */
+/* Slide in animation */
 .apple-toast {
   animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Animazione di uscita */
+/* Slide out animation */
 .apple-toast.removing {
   animation: toastSlideOut 0.2s ease forwards;
 }
@@ -182,12 +204,15 @@ export default {
   }
 }
 
-/* Hover effect - leggermente più opaco */
+/* Hover effect */
 .apple-toast:hover {
   background: rgba(255, 255, 255, 0.98) !important;
 }
 
-/* Responsive */
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
 @media (max-width: 576px) {
   .toast-container {
     left: 16px;
