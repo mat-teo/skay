@@ -17,3 +17,6 @@ frontend/.vscode
 *.env.local
 *.env.production.local
 *.env.production
+
+# Backup files 
+backend/backups/*.dump
