@@ -8,6 +8,7 @@ from sqlmodel import Session, select
 from slowapi.util import get_remote_address 
 from datetime import timedelta
 from slowapi import Limiter
+from logger import setup_logger
 
 from database import get_db
 from models import User, UserCreate
@@ -19,6 +20,8 @@ from auth import (
 )
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
+
+logger = setup_logger(__name__)
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -35,12 +38,15 @@ def login(
     OAuth2PasswordRequestForm expects 'username' and 'password' fields.
     This implementation uses email as the username.
     """
+    logger.info(f"Login attempt for email: {form_data.username}")
+
     # Step 1: Find user by email
     statement = select(User).where(User.email == form_data.username)
     user = session.exec(statement).first()
     
     # Step 2: Raise 401 if user not found
     if not user:
+        logger.warning(f"Login failed: user not found - {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
@@ -49,6 +55,7 @@ def login(
     
     # Step 3: Verify password
     if not verify_password(form_data.password, user.password_hash):
+        logger.warning(f"Login failed: wrong password - {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
@@ -61,6 +68,7 @@ def login(
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     
+    logger.info(f"Login successful: {form_data.username}")
     # Step 5: Return token
     return {
         "access_token": access_token,
@@ -82,11 +90,13 @@ def register(
     - Hashes the password before storing
     - Returns user object without password field
     """
+    logger.info(f"Registration attempt for email: {user_data.email}")
     # Step 1: Check if email already exists
     statement = select(User).where(User.email == user_data.email)
     existing_user = session.exec(statement).first()
     
     if existing_user:
+        logger.warning(f"Registration failed: email already registered - {user_data.email}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
@@ -106,4 +116,5 @@ def register(
     
     # Step 4: Return user without password
     # (User model doesn't expose password by design)
+    logger.info(f"Registration successful: {user_data.email}")
     return user

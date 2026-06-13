@@ -3,7 +3,10 @@ from rate_limit import setup_rate_limiting, limiter
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
 from database import engine
-from routers import categories, users, accounts, transactions, auth
+from routers import categories, users, accounts, transactions, auth, health
+from logger import setup_logger
+
+logger = setup_logger(__name__)
 
 app = FastAPI(title="Skay Finance API", version="0.7")
 
@@ -24,7 +27,14 @@ app.add_middleware(
 # Create tables on startup
 @app.on_event("startup")
 def on_startup():
+    logger.info("Starting skay API...")
     SQLModel.metadata.create_all(engine)
+    logger.info("Database initialized")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("Shutting down skay API")
 
 # Include professional modular routers
 app.include_router(users.router, prefix="/api")
@@ -32,7 +42,7 @@ app.include_router(accounts.router, prefix="/api")
 app.include_router(transactions.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
 app.include_router(categories.router, prefix="/api")
-
+app.include_router(health.router,prefix="/api")
 
 @app.get("/")
 @limiter.limit("10/minute")
