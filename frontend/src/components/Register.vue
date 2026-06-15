@@ -28,7 +28,6 @@
                   <option value="GBP">GBP (£)</option>
                 </select>
               </div>
-              <div v-if="error" class="alert alert-danger">{{ error }}</div>
               <button type="submit" class="btn btn-dark w-100" :disabled="loading">
                 {{ loading ? 'Creating account...' : 'Register' }}
               </button>
@@ -58,25 +57,24 @@ export default {
       password: '',
       confirmPassword: '',
       baseCurrency: 'EUR',
-      loading: false,
-      error: ''
+      loading: false
     }
   },
   methods: {
     async handleRegister() {
       if (this.password !== this.confirmPassword) {
-        this.error = 'Passwords do not match'
+        this.$root.showToast('Passwords do not match', 'warning')
         return
       }
       
       this.loading = true
-      this.error = ''
       try {
         await auth.register(this.email, this.password, this.baseCurrency)
         await auth.login(this.email, this.password)
+        this.$root.showToast('Registration successful! Welcome!', 'success')
         this.$router.push('/dashboard')
       } catch (err) {
-        this.error = err.message
+        this.$root.showToast(err.message || 'Registration failed', 'danger')
       } finally {
         this.loading = false
       }

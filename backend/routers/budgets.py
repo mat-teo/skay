@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional
 from database import get_db
 from models import Budget, BudgetCreate, User, Transaction, TransactionCategory
@@ -117,27 +117,34 @@ def get_budget_progress(
     ).all()
     category_map = {c.id: c.name for c in categories}
     
-    # Get current period dates
+    # Get current date
     now = datetime.now()
-    current_period_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     
-    # Get expenses for current period
-    expenses = db.exec(
+    # Get expenses for ALL periods (will filter per budget)
+    all_expenses = db.exec(
         select(Transaction).where(
             Transaction.user_id == current_user.id,
-            Transaction.type == "expense",
-            Transaction.date >= current_period_start
+            Transaction.type == "expense"
         )
     ).all()
     
-    # Calculate spent per category
-    spent_by_category = {}
-    for tx in expenses:
-        spent_by_category[tx.category_id] = spent_by_category.get(tx.category_id, 0) + tx.amount
-    total_spent = sum(spent_by_category.values())
-    
     result = []
     for budget in budgets:
+        # Calculate period start based on budget period
+        period_start = get_period_start(now, budget.period)
+        
+        # Filter expenses within the period
+        period_expenses = [
+            tx for tx in all_expenses 
+            if tx.date and tx.date >= period_start
+        ]
+        
+        # Calculate spent per category
+        spent_by_category = {}
+        for tx in period_expenses:
+            spent_by_category[tx.category_id] = spent_by_category.get(tx.category_id, 0) + tx.amount
+        total_spent = sum(spent_by_category.values())
+        
         if budget.category_id:
             spent = spent_by_category.get(budget.category_id, 0)
             category_name = category_map.get(budget.category_id)
@@ -157,7 +164,41 @@ def get_budget_progress(
             "remaining": budget.amount - spent,
             "percentage": round(percentage, 1),
             "period": budget.period,
+            "period_start": period_start.isoformat(),
             "is_exceeded": spent > budget.amount
         })
     
     return result
+
+def get_period_start(now: datetime, period: str) -> datetime:
+    """
+    Calculate the start of the current period based on period type.
+    
+    Args:
+        now: Current datetime
+        period: 'weekly', 'monthly', 'quarterly', 'yearly'
+    
+    Returns:
+        Start datetime of the current period
+    """
+    if period == 'weekly':
+        # Start of week (Monday)
+        start = now - timedelta(days=now.weekday())
+        return start.replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    elif period == 'monthly':
+        # Start of month
+        return now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    elif period == 'quarterly':
+        # Start of quarter (Jan 1, Apr 1, Jul 1, Oct 1)
+        quarter_month = ((now.month - 1) // 3) * 3 + 1
+        return now.replace(month=quarter_month, day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    elif period == 'yearly':
+        # Start of year
+        return now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    else:
+        # Default to monthly
+        return now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)

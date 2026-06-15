@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Optional
-from slowapi import Limiter
 from slowapi.util import get_remote_address 
 from fastapi import APIRouter, Depends, Query, Request
 from sqlmodel import Session, select
@@ -11,10 +10,8 @@ from auth import get_current_user
 
 router = APIRouter(tags=["Transactions"])
 
-limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/transactions", response_model=Transaction)
-@limiter.limit("30/minute")
 def create_transaction(request: Request, transaction_input: TransactionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     db_transaction = Transaction(
         user_id=current_user.id,
@@ -80,31 +77,31 @@ def update_transaction(
     """Update an existing transaction."""
     
     # Get the transaction
-    transaction = db.get(Transaction, transaction_id)
-    if not transaction:
+    old_transaction = db.get(Transaction, transaction_id)
+    if not old_transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
     
     # Check ownership
-    if transaction.user_id != current_user.id:
+    if old_transaction.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
     
-     # Check if type changed and call edit_transaction
     new_data = transaction_input.dict()
     
-    if transaction.type != new_data.get("type"):
-        # Type changed - need full balance adjustment
-        finance.edit_transaction(transaction, new_data, db)
-    # Update fields
-    for key, value in transaction_input.dict().items():
-        setattr(transaction, key, value)
+    # Always call edit_transaction to handle balance changes
+    # (it handles type change, amount change, account change)
+    finance.edit_transaction(old_transaction, new_data, db)
     
-    db.add(transaction)
+    # Update the transaction with new data
+    for key, value in new_data.items():
+        setattr(old_transaction, key, value)
+    
+    db.add(old_transaction)
     db.commit()
-    db.refresh(transaction)
-    return transaction
+    db.refresh(old_transaction)
+    
+    return old_transaction
 
 @router.delete("/transactions/{transaction_id}")
-@limiter.limit("30/minute")
 def delete_transaction(
     request: Request,
     transaction_id: int,

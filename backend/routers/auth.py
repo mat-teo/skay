@@ -7,7 +7,6 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
 from slowapi.util import get_remote_address 
 from datetime import timedelta
-from slowapi import Limiter
 from logger import setup_logger
 
 from database import get_db
@@ -23,10 +22,7 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 
 logger = setup_logger(__name__)
 
-limiter = Limiter(key_func=get_remote_address)
-
 @router.post("/login")
-@limiter.limit("5/minute") #max 5 login attemps per minute
 def login(
     request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -77,7 +73,6 @@ def login(
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
-@limiter.limit("3/minute")
 def register(
     request: Request,
     user_data: UserCreate, 

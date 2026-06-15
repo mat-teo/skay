@@ -1,22 +1,45 @@
-# Python 
-backend/venv/
-backend/__pycache__/
-backend/*.pyc
-backend/.pytest_cache/
+# Root env file
+.env
+.env.local
+.env.production
 
-# Node/Vue 
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+venv/
+env/
+ENV/
+*.log
+
+# Backend
+backend/.env
+backend/skay.db
+backend/test.db
+backend/backups/
+backend/logs/
+
+# Frontend
 frontend/node_modules/
 frontend/dist/
-frontend/.vscode
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+frontend/.env.production.local
 
-# OS
+# Docker
+*.pid
+
+# macOS
 .DS_Store
+*.swp
 
-# Environment variables
-.env
-*.env.local
-*.env.production.local
-*.env.production
+# IDE
+.vscode/
+.idea/
 
-# Backup files 
-backend/backups/*.dump
+# Test
+.pytest_cache/
+.coverage
+htmlcov/

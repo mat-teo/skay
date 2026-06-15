@@ -5,6 +5,7 @@ from sqlmodel import SQLModel
 from database import engine
 from routers import categories, users, accounts, transactions, auth, health, budgets
 from logger import setup_logger
+from rate_limit import limiter, TESTING
 
 logger = setup_logger(__name__)
 
@@ -45,6 +46,12 @@ app.include_router(categories.router, prefix="/api")
 app.include_router(health.router,prefix="/api")
 app.include_router(budgets.router,prefix="/api")
 
+if not TESTING:
+    for route in auth.router.routes:
+        if route.path == "/login":
+            route.endpoint = limiter.limit("5/minute")(route.endpoint)
+        elif route.path == "/register":
+            route.endpoint = limiter.limit("3/minute")(route.endpoint)
 
 @app.get("/")
 @limiter.limit("10/minute")
