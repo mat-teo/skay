@@ -26,6 +26,9 @@ class User(SQLModel, table=True):
     reset_token: Optional[str] = Field(default=None)
     reset_token_expires_at: Optional[datetime] = Field(default=None)
 
+    is_2fa_enabled: bool = Field(default=False)
+    otp_secret: Optional[str] = Field(default=None)
+
 # ==========================================
 # 2. ACCOUNT MODELS (Input vs DB)
 # ==========================================

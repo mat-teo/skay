@@ -8,6 +8,8 @@ from sqlmodel import Session, select
 from slowapi.util import get_remote_address 
 from datetime import timedelta
 from logger import setup_logger
+from rate_limit import limiter
+from routers.otp import create_temp_token
 
 from database import get_db
 from models import User, UserCreate
@@ -15,7 +17,8 @@ from auth import (
     verify_password, 
     create_access_token, 
     get_password_hash,
-    ACCESS_TOKEN_EXPIRE_MINUTES
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    get_current_user
 )
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
@@ -23,6 +26,7 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 logger = setup_logger(__name__)
 
 @router.post("/login")
+@limiter.limit("5/minute")
 def login(
     request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -58,6 +62,16 @@ def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    if user.is_2fa_enabled:
+        # Create temporary token instead of final token
+        temp_token = create_temp_token(user.id)
+        logger.info(f"2FA required for user: {form_data.username}")
+        return {
+            "requires_2fa": True,
+            "temp_token": temp_token,
+            "message": "2FA verification required"
+        }
+
     # Step 4: Create access token
     access_token = create_access_token(
         data={"sub": str(user.id)},
@@ -73,6 +87,7 @@ def login(
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
+@limiter.limit("3/minute")
 def register(
     request: Request,
     user_data: UserCreate, 
@@ -113,3 +128,26 @@ def register(
     # (User model doesn't expose password by design)
     logger.info(f"Registration successful: {user_data.email}")
     return user
+
+@router.post("/change-password")
+@limiter.limit("3/minute")
+def change_password(
+    request: Request,
+    password_data: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    from auth import verify_password, get_password_hash
+    
+    if not verify_password(password_data.get("current_password"), current_user.password_hash):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    new_password = password_data.get("new_password")
+    if len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    
+    current_user.password_hash = get_password_hash(new_password)
+    db.add(current_user)
+    db.commit()
+    
+    return {"message": "Password changed successfully"}

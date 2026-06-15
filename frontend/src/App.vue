@@ -2,7 +2,7 @@
   <div>
     <ToastNotification ref="toast" />
     
-    <router-view v-if="!isLoggedIn" />
+    <router-view v-if="!isLoggedIn" @2fa-required="show2FAModal"/>
     
     <div v-if="isLoggedIn" class="app-layout">
       <nav class="navbar navbar-expand-md custom-navbar sticky-top">
@@ -18,6 +18,7 @@
               <router-link class="nav-link-apple" to="/stats">Stats</router-link>
               <router-link class="nav-link-apple" to="/categories">Categories</router-link>
               <router-link class="nav-link-apple" to="/budgets">Budgets</router-link>
+              <router-link class="nav-link-apple" to="/profile">Profile</router-link>
             </div>
 
             <!-- Dark Mode Toggle -->
@@ -49,13 +50,14 @@ import ToastNotification from './components/ToastNotification.vue'
 import { auth } from './auth'
 import { useDarkMode } from './composables/useDarkMode'
 import GlobalFooter from './components/GlobalFooter.vue'
+import Login from './components/Login.vue'
 
 // Import dark theme CSS
 import './assets/theme-dark.css'
 
 export default {
   name: 'App',
-  components: { ToastNotification, GlobalFooter},
+  components: { Login,ToastNotification, GlobalFooter},
   setup() {
     const { isDark, toggleDarkMode } = useDarkMode();
     return { isDark, toggleDarkMode };

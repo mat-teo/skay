@@ -43,14 +43,36 @@ export const auth = {
     formData.append('username', email)
     formData.append('password', password)
     
-    const response = await axios.post(`${API_URL}/auth/login`, formData)
+    try {
+      const response = await axios.post(`${API_URL}/auth/login`, formData)
+      const data = response.data
+      
+      if (data.access_token) {
+        localStorage.setItem('token', data.access_token)
+      }
+      
+      return data
+    } catch (err) {
+      throw new Error(err.response?.data?.detail || 'Login failed')
+    }
+  },
+
+  async verify2FA(temp_token, otp_token) {
+    console.log('verify2FA called with:', { temp_token: temp_token?.slice(0, 20), otp_token })
     
-    if (response.data && response.data.access_token) {
+    const response = await axios.post(`${API_URL}/auth/2fa/login`, {
+      temp_token: temp_token,
+      otp_token: otp_token
+    })
+    
+    console.log('2FA response:', response.data)
+    
+    if (response.data.access_token) {
       localStorage.setItem('token', response.data.access_token)
       return response.data
-    } else {
-      throw new Error('Invalid response from server')
     }
+    
+    throw new Error('Invalid response from server')
   }
 }
 

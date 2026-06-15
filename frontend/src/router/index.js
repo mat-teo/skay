@@ -7,6 +7,7 @@ import Login from '../components/Login.vue'
 import Register from '../components/Register.vue'
 import { auth } from '../auth'
 import BudgetsView from '../components/budgets/BudgetsView.vue'
+import ProfileView from '../components/ProfileView.vue'
 
 const routes = [
   {
@@ -56,6 +57,12 @@ const routes = [
     meta:{
       requiresAuth: true
     }
+  },
+  { 
+    path: '/profile', 
+    name: 'Profile', 
+    component: ProfileView,
+    meta: { requiresAuth: true } 
   }
 ]
 

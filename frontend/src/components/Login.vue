@@ -31,11 +31,33 @@
         </div>
       </div>
     </div>
+
+    <!-- 2FA Modal -->
+    <div class="modal fade" id="twoFactorModal" tabindex="-1" data-bs-backdrop="static">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Two-Factor Authentication</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p>Enter the 6-digit code from your authenticator app:</p>
+            <input type="text" class="form-control text-center fs-3" v-model="otpCode" maxlength="6" placeholder="000000" @keyup.enter="submit2FALogin">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary w-100" @click="submit2FALogin" :disabled="verifying">
+              {{ verifying ? 'Verifying...' : 'Verify' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { auth } from '../auth'
+import { Modal } from 'bootstrap'
 
 export default {
   name: 'Login',
@@ -43,20 +65,50 @@ export default {
     return {
       email: '',
       password: '',
-      loading: false
+      loading: false,
+      tempToken: null,
+      otpCode: '',
+      verifying: false
     }
   },
   methods: {
     async handleLogin() {
       this.loading = true
       try {
-        const result = await auth.login(this.email, this.password)
-        this.$root.showToast('Login successful!', 'success')
-        this.$router.push('/dashboard')
+        const response = await auth.login(this.email, this.password)
+        
+        if (response.requires_2fa) {
+          this.tempToken = response.temp_token
+          const modal = new Modal(document.getElementById('twoFactorModal'))
+          modal.show()
+        } else {
+          this.$root.showToast('Login successful!', 'success')
+          this.$router.push('/dashboard')
+        }
       } catch (err) {
-        this.$root.showToast(err.message || 'Login failed', 'danger')
+        this.$root.showToast(err.message || 'Login failed. Please check your credentials.', 'danger')
       } finally {
         this.loading = false
+      }
+    },
+    
+    async submit2FALogin() {
+      if (!this.otpCode || this.otpCode.length !== 6) {
+        this.$root.showToast('Please enter a 6-digit code', 'warning')
+        return
+      }
+      
+      this.verifying = true
+      try {
+        await auth.verify2FA(this.tempToken, this.otpCode)
+        this.$root.showToast('Login successful!', 'success')
+        const modal = Modal.getInstance(document.getElementById('twoFactorModal'))
+        if (modal) modal.hide()
+        this.$router.push('/dashboard')
+      } catch (err) {
+        this.$root.showToast(err.message, 'danger')
+      } finally {
+        this.verifying = false
       }
     }
   }
