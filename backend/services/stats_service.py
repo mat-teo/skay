@@ -13,22 +13,24 @@ def get_financial_stats(db: Session, user_id: int, start_date: Optional[datetime
     # Base statement for expense
     expense_stmt = select(func.sum(Transaction.amount)).where(
         Transaction.user_id == user_id,
-        Transaction.type == "expense"
+        Transaction.type == "expense",
+        Transaction.amount != 0
     )
     
     # Base statement for income
     income_stmt = select(func.sum(Transaction.amount)).where(
         Transaction.user_id == user_id,
-        Transaction.type == "income"
+        Transaction.type == "income",
+        Transaction.amount != 0
     )
 
     # Apply date filters if provided
     if start_date:
-        expense_stmt = expense_stmt.where(Transaction.date >= start_date)
-        income_stmt = income_stmt.where(Transaction.date >= start_date)
+        expense_stmt = expense_stmt.where(Transaction.date >= start_date, Transaction.amount != 0)
+        income_stmt = income_stmt.where(Transaction.date >= start_date, Transaction.amount != 0)
     if end_date:
-        expense_stmt = expense_stmt.where(Transaction.date <= end_date)
-        income_stmt = income_stmt.where(Transaction.date <= end_date)
+        expense_stmt = expense_stmt.where(Transaction.date <= end_date, Transaction.amount != 0)
+        income_stmt = income_stmt.where(Transaction.date <= end_date, Transaction.amount != 0)
 
     total_expense = db.exec(expense_stmt).one() or 0.0
     total_income = db.exec(income_stmt).one() or 0.0
@@ -69,7 +71,8 @@ def get_net_worth_history(
     # to accurately calculate the net worth backwards from today's balance.
     query = select(Transaction).where(
         Transaction.user_id == user_id,
-        Transaction.date >= range_start
+        Transaction.date >= range_start,
+        Transaction.amount != 0
     )
     transactions = db.exec(query.order_by(Transaction.date)).all()
     

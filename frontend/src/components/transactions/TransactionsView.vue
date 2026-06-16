@@ -4,10 +4,28 @@
       <div>
         <h1 class="page-title mt-1 mb-0">Transactions</h1>
       </div>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTransactionModal" @click="loadFormData">
-        + New Transaction
-      </button>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary btn-sm" @click="openRecurringModal">
+          <i class="bi bi-clock-history me-1"></i> New Recurring
+        </button>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addTransactionModal" @click="loadFormData">
+          + New Transaction
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" @click="exportCSV">
+          Export
+        </button>
+      </div>
     </header>
+
+    <!-- Planned Payments -->
+    <PlannedPayments
+      :payments="upcomingRecurring"
+      :categories="categories"
+      @pay="payRecurring"
+      @skip="skipRecurring"
+      @edit="editRecurring"
+      @delete="deleteRecurring"
+    />
 
     <!-- Period Selector -->
     <div class="card mb-4">
@@ -23,7 +41,6 @@
             </select>
           </div>
           
-          <!-- Navigation buttons -->
           <div class="col-md-4" v-if="periodType !== 'custom'">
             <div class="btn-group" role="group">
               <button class="btn btn-outline-secondary" @click="navigatePeriod(-1)">← Previous</button>
@@ -75,10 +92,6 @@
       @delete="openDeleteModal"
     />
 
-     <button class="btn btn-outline-primary me-2 mt-4" @click="exportCSV">
-       Export CSV
-    </button>
-
     <!-- Modals -->
     <EditTransactionModal 
       :transaction="selectedTransaction"
@@ -90,11 +103,21 @@
       @transaction-deleted="onTransactionDeleted"
     />
 
-    <!-- Add Transaction Modal  -->
-     <AddTransactionModal
-        :accounts="accounts"
-        :categories="categories"
-        @transaction-added="onTransactionAdded"
+    <!-- Add Transaction Modal -->
+    <AddTransactionModal
+      :accounts="accounts"
+      :categories="categories"
+      @transaction-added="onTransactionAdded"
+    />
+
+    <!-- Recurring Modal -->
+    <RecurringModal
+      ref="recurringModal"
+      :editing="editingRecurring"
+      :categories="categories"
+      :accounts="accounts"
+      @saved="onRecurringSaved"
+      @deleted="onRecurringDeleted"
     />
   </div>
 </template>
@@ -108,16 +131,26 @@ import TransactionTable from './TransactionTable.vue';
 import DeleteTransactionModal from './DeleteTransactionModal.vue';
 import EditTransactionModal from './EditTransactionModal.vue';
 import AddTransactionModal from './AddTransactionModal.vue';
-
+import PlannedPayments from './PlannedPayments.vue';
+import RecurringModal from './RecurringModal.vue';
 
 export default {
   name: 'TransactionsView',
-  components: { TransactionFilters, TransactionTable, DeleteTransactionModal, EditTransactionModal, AddTransactionModal},
+  components: { 
+    TransactionFilters, 
+    TransactionTable, 
+    DeleteTransactionModal, 
+    EditTransactionModal, 
+    AddTransactionModal, 
+    PlannedPayments, 
+    RecurringModal
+  },
   data() {
     return {
       transactions: [],
       categories: [],
       accounts: [],
+      upcomingRecurring: [],
       loading: false,
       
       // Period state
@@ -140,7 +173,8 @@ export default {
       
       // Modal state
       selectedTransaction: null,
-      selectedDeleteTransaction: null
+      selectedDeleteTransaction: null,
+      editingRecurring: null
     }
   },
   computed: {
@@ -203,8 +237,74 @@ export default {
   mounted() {
     this.loadInitialData();
     this.loadFormData();
+    this.loadRecurring();
   },
   methods: {
+    editRecurring(item) {
+      this.editingRecurring = { ...item };
+      this.$refs.recurringModal.open();
+    },
+
+    async deleteRecurring(id) {
+      if (!confirm('Delete this recurring transaction?')) return;
+      try {
+        await axios.delete(`${API_URL}/recurring/${id}`);
+        this.loadRecurring();
+        this.$root.showToast('Recurring transaction deleted', 'success');
+      } catch (err) {
+        this.$root.showToast('Failed to delete', 'danger');
+      }
+    },
+    
+    async loadRecurring() {
+      try {
+        const response = await axios.get(`${API_URL}/recurring/upcoming?limit=10`);
+        this.upcomingRecurring = response.data;
+      } catch (err) {
+        console.error('Failed to load recurring:', err);
+      }
+    },
+    
+    openRecurringModal() {
+      this.editingRecurring = null;
+      this.$refs.recurringModal.open();
+    },
+    
+    onRecurringSaved() {
+      this.editingRecurring = null;
+      this.loadRecurring();
+      this.loadTransactions();
+    },
+    
+    onRecurringDeleted() {
+      this.editingRecurring = null;
+      this.loadRecurring();
+      this.loadTransactions();
+    },
+    
+    async payRecurring(id) {
+      if (!confirm(`Pay this recurring transaction? This will update your account balance.`)) return;
+      try {
+        await axios.post(`${API_URL}/recurring/${id}/pay`);
+        this.loadRecurring();
+        this.loadTransactions();
+        this.$root.showToast('Payment recorded!', 'success');
+      } catch (err) {
+        this.$root.showToast('Failed to record payment', 'danger');
+      }
+    },
+    
+    async skipRecurring(id) {
+      if (!confirm(`Skip this occurrence? The next one will be scheduled.`)) return;
+      try {
+        await axios.post(`${API_URL}/recurring/${id}/skip`);
+        this.loadRecurring();
+        this.$root.showToast('Occurrence skipped', 'info');
+      } catch (err) {
+        this.$root.showToast('Failed to skip', 'danger');
+      }
+    },
+    
     getWeekStart(date) {
       const d = new Date(date);
       const day = d.getDay();
@@ -260,11 +360,12 @@ export default {
           return null;
       }
     },
-    onTransactionAdded(){
-        this.loadTransactions();
-        this.$emit('transaction-saved');
-    }
-    ,
+    
+    onTransactionAdded() {
+      this.loadTransactions();
+      this.$emit('transaction-saved');
+    },
+    
     async loadInitialData() {
       await this.loadTransactions();
       await this.loadCategories();
@@ -352,21 +453,21 @@ export default {
     },
     
     openEditModal(transaction) {
-        this.selectedTransaction = transaction;
-        const modalElement = document.getElementById('editTransactionModal');
-        if (modalElement) {
-            const modal = new Modal(modalElement);
-            modal.show();
-        }
+      this.selectedTransaction = transaction;
+      const modalElement = document.getElementById('editTransactionModal');
+      if (modalElement) {
+        const modal = new Modal(modalElement);
+        modal.show();
+      }
     },
     
     openDeleteModal(transaction) {
-        this.selectedDeleteTransaction = transaction;
-        const modalElement = document.getElementById('deleteTransactionModal');
-        if (modalElement) {
-            const modal = new Modal(modalElement);
-            modal.show();
-        }
+      this.selectedDeleteTransaction = transaction;
+      const modalElement = document.getElementById('deleteTransactionModal');
+      if (modalElement) {
+        const modal = new Modal(modalElement);
+        modal.show();
+      }
     },
     
     onTransactionUpdated() {
@@ -379,10 +480,11 @@ export default {
       this.$emit('transaction-saved');
       this.selectedDeleteTransaction = null;
     },
+    
     async exportCSV() {
       try {
         const range = this.getDateRange();
-        let url =  API_URL + '/transactions/export';
+        let url = API_URL + '/transactions/export';
         
         if (range) {
           const params = new URLSearchParams();
@@ -391,7 +493,6 @@ export default {
           url += `?${params.toString()}`;
         }
         
-        // Use fetch with Authorization header
         const token = localStorage.getItem('token');
         const response = await fetch(url, {
           headers: {
@@ -403,7 +504,6 @@ export default {
           throw new Error('Export failed');
         }
         
-        // Get the blob and download
         const blob = await response.blob();
         const downloadUrl = window.URL.createObjectURL(blob);
         const a = document.createElement('a');

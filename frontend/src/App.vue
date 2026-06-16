@@ -7,12 +7,28 @@
     <div v-if="isLoggedIn" class="app-layout">
       <nav class="navbar navbar-expand-md custom-navbar sticky-top">
         <div class="container">
+          <!-- Brand -->
           <router-link class="navbar-brand-apple" to="/dashboard">
             <span class="brand-gradient">Skay</span>Finance
           </router-link>
           
-          <div class="d-flex align-items-center gap-2">
-            <div class="nav-capsule-wrapper d-flex">
+          <!-- Controlli sempre visibili a destra (Dark mode + Hamburger) -->
+          <div class="d-flex align-items-center gap-1 order-md-last">
+            <!-- Dark Mode Toggle -->
+            <button class="btn-darkmode-apple" @click="toggleDarkMode" :title="isDark ? 'Light mode' : 'Dark mode'">
+              <i :class="isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill'"></i>
+            </button>
+
+            <!-- Bottone Hamburger (visibile solo su mobile) -->
+            <button class="btn-hamburger-apple d-md-none" @click="mobileMenuOpen = !mobileMenuOpen" :aria-expanded="mobileMenuOpen">
+              <i :class="mobileMenuOpen ? 'bi bi-x-lg' : 'bi bi-list'"></i>
+            </button>
+          </div>
+
+          <!-- Menu Collassabile -->
+          <div class="collapse navbar-collapse" :class="{ 'show': mobileMenuOpen }">
+            <!-- Links di navigazione -->
+            <div class="nav-capsule-wrapper d-flex flex-column flex-md-row mx-auto my-3 my-md-0 gap-1 gap-md-0">
               <router-link class="nav-link-apple" to="/dashboard">Dashboard</router-link>
               <router-link class="nav-link-apple" to="/transactions">Transactions</router-link>
               <router-link class="nav-link-apple" to="/stats">Stats</router-link>
@@ -21,16 +37,13 @@
               <router-link class="nav-link-apple" to="/profile">Profile</router-link>
             </div>
 
-            <!-- Dark Mode Toggle -->
-            <button class="btn-darkmode-apple" @click="toggleDarkMode" :title="isDark ? 'Light mode' : 'Dark mode'">
-              <i :class="isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill'"></i>
-            </button>
-
-            <div class="v-divider ms-2 me-1"></div>
-
-            <button class="btn-logout-apple" @click="handleLogout">
-              <i class="bi bi-box-arrow-right me-1"></i>Logout
-            </button>
+            <!-- Area Logout -->
+            <div class="logout-wrapper d-flex align-items-center flex-column flex-md-row gap-2 ms-md-2">
+              <div class="v-divider d-none d-md-block"></div>
+              <button class="btn-logout-apple w-100 w-md-auto justify-content-center" @click="handleLogout">
+                <i class="bi bi-box-arrow-right me-1"></i>Logout
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -38,7 +51,6 @@
       <main class="container main-content">
         <router-view />
       </main>
-
 
       <GlobalFooter />
     </div>
@@ -52,19 +64,19 @@ import { useDarkMode } from './composables/useDarkMode'
 import GlobalFooter from './components/GlobalFooter.vue'
 import Login from './components/Login.vue'
 
-// Import dark theme CSS
 import './assets/theme-dark.css'
 
 export default {
   name: 'App',
-  components: { Login,ToastNotification, GlobalFooter},
+  components: { Login, ToastNotification, GlobalFooter },
   setup() {
     const { isDark, toggleDarkMode } = useDarkMode();
     return { isDark, toggleDarkMode };
   },
   data() {
     return {
-      isLoggedIn: false
+      isLoggedIn: false,
+      mobileMenuOpen: false // Gestisce l'apertura/chiusura del menu mobile
     }
   },
   mounted() {
@@ -72,7 +84,8 @@ export default {
   },
   watch: {
     '$route'() {
-      this.checkAuth()
+      this.checkAuth();
+      this.mobileMenuOpen = false; // Chiude automaticamente il menu al cambio pagina
     }
   },
   methods: {
@@ -85,6 +98,7 @@ export default {
     async handleLogout() {
       auth.logout()
       this.isLoggedIn = false
+      this.mobileMenuOpen = false
       this.$router.push('/login')
       this.showToast('Logged out successfully', 'info')
     }
@@ -93,8 +107,74 @@ export default {
 </script>
 
 <style scoped>
-/* Existing styles plus dark mode toggle button */
+/* Cambiamenti e fix per Mobile Responsive */
+@media (max-width: 767.98px) {
+  .navbar-collapse {
+    width: 100%;
+    padding-top: 10px;
+  }
+  
+  /* Rimuove lo sfondo a "capsula" unita su mobile e incolonna i link */
+  .nav-capsule-wrapper {
+    background-color: transparent !important;
+    padding: 0;
+    border-radius: 0;
+    width: 100%;
+  }
 
+  .nav-link-apple {
+    width: 100%;
+    text-align: left;
+    padding: 10px 16px;
+    border-radius: 10px;
+  }
+
+  /* Rende l'area logout full width su mobile */
+  .logout-wrapper {
+    width: 100%;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    padding-top: 12px;
+    margin-top: 8px;
+  }
+
+  .dark-theme .logout-wrapper {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .btn-logout-apple {
+    padding: 10px 16px;
+    border-radius: 10px;
+  }
+}
+
+/* Stili del Bottone Hamburger */
+.btn-hamburger-apple {
+  background: none;
+  border: none;
+  color: #515154;
+  font-size: 1.4rem;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-hamburger-apple:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.dark-theme .btn-hamburger-apple {
+  color: #8e8e93;
+}
+
+.dark-theme .btn-hamburger-apple:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Vecchi stili non modificati */
 .btn-darkmode-apple {
   background: none;
   border: none;

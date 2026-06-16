@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional, List
 from sqlmodel import Field, SQLModel
+from pydantic import validator
 
 # ==========================================
 # 1. USER MODELS (Input vs DB)
@@ -77,6 +78,7 @@ class Transaction(TransactionCreate, table=True):
     category_id: Optional[int] = Field(default=None, foreign_key="transactioncategory.id")
     account_source_id: Optional[int] = Field(default=None, foreign_key="account.id")
     account_destination_id: Optional[int] = Field(default=None, foreign_key="account.id")
+    recurring_id: Optional[int] = Field(default=None, foreign_key="recurring_transactions.id")
 
 # ==========================================
 # 5. STOCK PORTFOLIO MODELS
@@ -115,3 +117,45 @@ class Budget(BudgetBase, table=True):
     user_id: int = Field(foreign_key="user.id")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class RecurringTransaction(SQLModel, table=True):
+    __tablename__ = "recurring_transactions"
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id", index=True)
+    name: str
+    amount: float
+    type: str  # "income", "expense"
+    category_id: int = Field(foreign_key="transactioncategory.id")  
+    account_id: int = Field(foreign_key="account.id")  
+    
+    frequency: str  # "monthly", "weekly", "custom"
+    custom_interval_months: Optional[int] = None
+    day_of_month: Optional[int] = None
+    day_of_week: Optional[int] = None
+    
+    start_date: datetime
+    end_date: Optional[datetime] = None
+    next_date: datetime 
+    is_active: bool = True
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    @validator('amount')
+    def amount_must_be_positive(cls, v):
+        if v < 0.01:
+            raise ValueError('Amount must be greater than 0.01')
+        return v
+    
+    @validator('category_id')
+    def category_must_exist(cls, v):
+        if v is None:
+            raise ValueError('Category is required')
+        return v
+    
+    @validator('account_id')
+    def account_must_exist(cls, v):
+        if v is None:
+            raise ValueError('Account is required')
+        return v

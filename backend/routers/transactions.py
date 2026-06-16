@@ -33,7 +33,7 @@ def get_all_transactions(
     db: Session = Depends(get_db)
 ):
     """Returns transaction history, optionally filtered by date range."""
-    stmt = select(Transaction).where(Transaction.user_id == current_user.id)
+    stmt = select(Transaction).where(Transaction.user_id == current_user.id, Transaction.amount != 0)
     if start_date:
         stmt = stmt.where(Transaction.date >= start_date)
     if end_date:
@@ -191,7 +191,7 @@ def export_transactions(
 ):
     """Export transactions as CSV."""
     
-    query = select(Transaction).where(Transaction.user_id == current_user.id)
+    query = select(Transaction).where(Transaction.user_id == current_user.id, Transaction.amount != 0)
     if start_date:
         query = query.where(Transaction.date >= start_date)
     if end_date:
