@@ -33,16 +33,16 @@
               <td>{{ getCategoryName(item.category_id) || '-' }}</td>
               <td class="text-center">
                 <button class="btn btn-sm btn-outline-primary me-1" @click="$emit('edit', item)" title="Edit">
-                    <i class="bi bi-pencil"></i>
+                    ✏️
                 </button>
                 <button class="btn btn-sm btn-outline-danger me-1" @click="$emit('delete', item.id)" title="Delete">
-                    <i class="bi bi-trash"></i>
+                    🗑️
                 </button>
                 <button class="btn btn-sm btn-success me-1" @click="$emit('pay', item.id)" title="Pay now">
-                    <i class="bi bi-check2"></i>
+                    💵
                 </button>
                 <button class="btn btn-sm btn-outline-secondary" @click="$emit('skip', item.id)" title="Skip">
-                    <i class="bi bi-forward"></i>
+                    ⏩
                 </button>
                 </td>
             </tr>

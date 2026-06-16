@@ -48,8 +48,8 @@
             </div>
           </div>
           <div class="card-footer bg-transparent d-flex justify-content-end gap-2">
-            <button class="btn btn-sm btn-outline-primary" @click="editBudget(budget)">Edit</button>
-            <button class="btn btn-sm btn-outline-danger" @click="deleteBudget(budget)">Delete</button>
+            <button class="btn btn-sm btn-outline-primary" @click="editBudget(budget)">✏️</button>
+            <button class="btn btn-sm btn-outline-danger" @click="deleteBudget(budget)">🗑️</button>
           </div>
         </div>
       </div>
