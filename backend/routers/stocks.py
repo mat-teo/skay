@@ -1,5 +1,5 @@
 # backend/routers/stocks.py
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlmodel import Session, select
 from datetime import datetime
 from typing import List
@@ -14,13 +14,13 @@ router = APIRouter(prefix="/stocks", tags=["Stocks"])
 
 @router.get("/", response_model=List[UserStock])
 @limiter.limit("10/minute")
-def get_stocks(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_stocks(request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     statement = select(UserStock).where(UserStock.user_id == current_user.id)
     return db.exec(statement).all()
 
 @router.post("/", response_model=UserStock)
 @limiter.limit("5/minute")
-def add_stock(stock: UserStockCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def add_stock(request: Request, stock: UserStockCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     ticker_upper = stock.ticker.upper()
     
     # STRICT VALIDATION: Check if market data exists for this asset
@@ -59,7 +59,7 @@ def add_stock(stock: UserStockCreate, current_user: User = Depends(get_current_u
 
 @router.put("/{stock_id}", response_model=UserStock)
 @limiter.limit("3/minute")
-def update_stock(stock_id: int, stock_update: UserStockCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def update_stock(request: Request, stock_id: int, stock_update: UserStockCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     stock = db.get(UserStock, stock_id)
     if not stock:
         raise HTTPException(status_code=404, detail="Stock record not found")
@@ -99,7 +99,7 @@ def delete_stock(stock_id: int, current_user: User = Depends(get_current_user), 
 
 @router.get("/portfolio")
 @limiter.limit("10/minute")
-def get_portfolio(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_portfolio(request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     stocks = db.exec(select(UserStock).where(UserStock.user_id == current_user.id)).all()
     if not stocks:
         return {"stocks": [], "summary": {"total_value": 0, "total_cost": 0, "total_gain": 0, "total_gain_percent": 0}}
@@ -152,7 +152,7 @@ def get_portfolio(current_user: User = Depends(get_current_user), db: Session = 
 
 @router.post("/refresh-prices")
 @limiter.limit("2/minute")
-def refresh_prices(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def refresh_prices(request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     stocks = db.exec(select(UserStock).where(UserStock.user_id == current_user.id)).all()
     updated = 0
     for stock in stocks:
