@@ -9,11 +9,14 @@
       </div>
     </div>
 
-     <div class="card mb-4 bg-gradient-primary text-black">
+    <!-- Total Net Worth Card (Accounts + Stocks) -->
+    <div class="card mb-4 bg-gradient-primary text-white">
       <div class="card-body">
         <h6 class="card-title text-uppercase small mb-2">Total Net Worth</h6>
-        <h2 class="card-text mb-0 text-black">{{ totalNetWorth.toFixed(2) }} €</h2>
-        <small class="opacity-75">Sum of all account balances</small>
+        <h2 class="card-text mb-0">{{ totalNetWorth.toFixed(2) }} €</h2>
+        <small class="opacity-75">
+           Accounts: {{ accountsTotal.toFixed(2) }} € · Stocks: {{ stocksTotal.toFixed(2) }} €
+        </small>
       </div>
     </div>
 
@@ -139,6 +142,7 @@ export default {
       error: null,
       selectedAccount: null,
       selectedDeleteAccount: null,
+      stocksTotal: 0,
       newAccount: {
         name: '',
         type: 'bank',
@@ -148,14 +152,17 @@ export default {
   },
   mounted() {
     this.fetchAccounts();
+    this.fetchStocksValue();
   },
-  computed:{
-    totalNetWorth(){
-      return this.accounts.reduce((total,account) => total + account.balance,0)
+  computed: {
+    accountsTotal() {
+      return this.accounts.reduce((total, account) => total + account.balance, 0);
+    },
+    totalNetWorth() {
+      return this.accountsTotal + this.stocksTotal;
     }
   },
   methods: {
-    // GET: Fetch all accounts from API
     async fetchAccounts() {
       this.loading = true;
       this.error = null;
@@ -169,21 +176,25 @@ export default {
         this.loading = false;
       }
     },
-    // POST: Create a new account
+    
+    async fetchStocksValue() {
+      try {
+        const response = await axios.get(API_URL + '/stocks/value');
+        this.stocksTotal = response.data.total_stock_value || 0;
+      } catch (err) {
+        console.error('Failed to fetch stocks value:', err);
+        this.stocksTotal = 0;
+      }
+    },
+    
     async createAccount() {
       this.submitting = true;
       try {
         await axios.post(API_URL + '/accounts', this.newAccount);
-        
-        // Refresh the list immediately
         await this.fetchAccounts();
-        
-        // Reset the form fields
         this.newAccount.name = '';
         this.newAccount.type = 'bank';
         this.newAccount.balance = 0.0;
-        
-        // Close the bootstrap modal programmatically by triggering click on close button
         document.getElementById('closeModalBtn').click();
       } catch (err) {
         this.$root.showToast('Error creating account.', "danger");
@@ -192,6 +203,7 @@ export default {
         this.submitting = false;
       }
     },
+    
     onAccountUpdated() {
       this.fetchAccounts();
       this.selectedAccount = null;
@@ -201,6 +213,7 @@ export default {
       this.fetchAccounts();
       this.selectedDeleteAccount = null;
     },
+    
     badgeClass(type) {
       return {
         'badge bg-success': type === 'cash',
@@ -208,6 +221,7 @@ export default {
         'badge bg-info text-dark': type === 'investment'
       };
     },
+    
     balanceClass(balance) {
       return {
         'text-success fw-bold': balance > 0,
@@ -218,3 +232,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+}
+</style>

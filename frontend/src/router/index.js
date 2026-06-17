@@ -8,6 +8,7 @@ import Register from '../components/Register.vue'
 import { auth } from '../auth'
 import BudgetsView from '../components/budgets/BudgetsView.vue'
 import ProfileView from '../components/ProfileView.vue'
+import StocksView from '../components/stocks/StocksView.vue'
 
 const routes = [
   {
@@ -62,6 +63,11 @@ const routes = [
     path: '/profile', 
     name: 'Profile', 
     component: ProfileView,
+    meta: { requiresAuth: true } 
+  },
+   { path: '/stocks', 
+    name: 'Stocks', 
+    component: StocksView, 
     meta: { requiresAuth: true } 
   }
 ]

@@ -83,6 +83,12 @@ class Transaction(TransactionCreate, table=True):
 # ==========================================
 # 5. STOCK PORTFOLIO MODELS
 # ==========================================
+class UserStockCreate(SQLModel):
+    ticker: str
+    quantity: float
+    average_buy_price: float
+    currency: str = "USD"
+    
 class UserStock(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id", index=True)

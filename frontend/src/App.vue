@@ -35,6 +35,7 @@
               <router-link class="nav-link-apple" to="/categories">Categories</router-link>
               <router-link class="nav-link-apple" to="/budgets">Budgets</router-link>
               <router-link class="nav-link-apple" to="/profile">Profile</router-link>
+              <router-link class="nav-link-apple" to="/stocks">Stocks</router-link>
             </div>
 
             <!-- Area Logout -->
