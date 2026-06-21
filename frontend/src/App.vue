@@ -1,6 +1,7 @@
 <template>
   <div>
     <ToastNotification ref="toast" />
+    <ConfirmModal ref="confirm" />
     
     <router-view v-if="!isLoggedIn" @2fa-required="show2FAModal"/>
     
@@ -60,6 +61,8 @@
 
 <script>
 import ToastNotification from './components/ToastNotification.vue'
+import ConfirmModal from './components/ConfirmModal.vue'
+import { setConfirmModal } from './main.js'
 import { auth } from './auth'
 import { useDarkMode } from './composables/useDarkMode'
 import GlobalFooter from './components/GlobalFooter.vue'
@@ -69,7 +72,7 @@ import './assets/theme-dark.css'
 
 export default {
   name: 'App',
-  components: { Login, ToastNotification, GlobalFooter },
+  components: { Login, ToastNotification, ConfirmModal,GlobalFooter },
   setup() {
     const { isDark, toggleDarkMode } = useDarkMode();
     return { isDark, toggleDarkMode };
@@ -82,6 +85,9 @@ export default {
   },
   mounted() {
     this.checkAuth()
+    if (this.$refs.confirm) {
+      setConfirmModal(this.$refs.confirm)
+    }
   },
   watch: {
     '$route'() {
@@ -96,6 +102,10 @@ export default {
     showToast(message, type) {
       this.$refs.toast?.show(message, type)
     },
+    showConfirm(options){
+      return this.$refs.confirm?.show(options)
+    }
+    ,
     async handleLogout() {
       auth.logout()
       this.isLoggedIn = false

@@ -253,8 +253,8 @@ export default {
         this.submitting = false;
       }
     },
-    confirmDelete() {
-      if (confirm('Delete this recurring transaction?')) {
+    async confirmDelete() {
+      if (await confirm('Delete this recurring transaction?')) {
         this.deleteRecurring();
       }
     },

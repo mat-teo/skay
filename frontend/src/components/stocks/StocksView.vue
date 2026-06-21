@@ -99,7 +99,7 @@ export default {
     },
     
     async confirmDelete(id) {
-      if (confirm('Delete this stock from your portfolio?')) {
+      if (await confirm('Delete this stock from your portfolio?')) {
         try {
           await StockService.deleteStock(id);
           this.$root.showToast('Stock deleted', 'success');

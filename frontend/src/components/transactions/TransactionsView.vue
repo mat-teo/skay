@@ -246,7 +246,7 @@ export default {
     },
 
     async deleteRecurring(id) {
-      if (!confirm('Delete this recurring transaction?')) return;
+      if (!await confirm('Delete this recurring transaction?')) return;
       try {
         await axios.delete(`${API_URL}/recurring/${id}`);
         this.loadRecurring();
@@ -283,7 +283,7 @@ export default {
     },
     
     async payRecurring(id) {
-      if (!confirm(`Pay this recurring transaction? This will update your account balance.`)) return;
+      if (!await confirm(`Pay this recurring transaction? This will update your account balance.`)) return;
       try {
         await axios.post(`${API_URL}/recurring/${id}/pay`);
         this.loadRecurring();
@@ -295,7 +295,7 @@ export default {
     },
     
     async skipRecurring(id) {
-      if (!confirm(`Skip this occurrence? The next one will be scheduled.`)) return;
+      if (!await confirm(`Skip this occurrence? The next one will be scheduled.`)) return;
       try {
         await axios.post(`${API_URL}/recurring/${id}/skip`);
         this.loadRecurring();

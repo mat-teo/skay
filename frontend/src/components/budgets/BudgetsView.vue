@@ -214,7 +214,7 @@ export default {
     },
     
     async deleteBudget(budget) {
-      if (confirm(`Delete budget "${budget.name}"?`)) {
+      if (await confirm(`Delete budget "${budget.name}"?`)) {
         try {
           await axios.delete(`${API_URL}/budgets/${budget.id}`);
           this.$root.showToast('Budget deleted', 'success');

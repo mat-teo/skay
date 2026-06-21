@@ -10,4 +10,30 @@ import './assets/theme.css'
 
 const app = createApp(App)
 app.use(router)
+
+let confirmModalInstance = null
+
+window.confirm = function(message, title = 'Confirm', confirmText = 'OK', type = 'primary') {
+  return new Promise((resolve) => {
+    if (!confirmModalInstance) {
+      console.error('ConfirmModal not initialized')
+      resolve(false)
+      return
+    }
+    
+    confirmModalInstance.show({
+      title: title || 'Confirm',
+      message: message || 'Are you sure?',
+      confirmText: confirmText || 'OK',
+      type: type || 'primary'
+    }).then(result => {
+      resolve(result)
+    })
+  })
+}
+
 app.mount('#app')
+
+export function setConfirmModal(instance) {
+  confirmModalInstance = instance
+}
