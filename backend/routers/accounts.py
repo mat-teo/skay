@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 from database import get_db
 from models import Account, User, AccountCreate, Transaction
 from auth import get_current_user
@@ -66,8 +66,9 @@ def delete_account(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Delete an account and all its transactions."""
-    
+    """
+    Delete an account and cascade delete all associated transactions via atomic bulk expressions.
+    """
     account = db.get(Account, account_id)
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
@@ -75,22 +76,18 @@ def delete_account(
     if account.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    # Find all transactions linked to this account
-    transactions = db.exec(
-        select(Transaction).where(
-            (Transaction.account_source_id == account_id) |
-            (Transaction.account_destination_id == account_id)
-        )
-    ).all()
+    # Bulk delete all transactions tied to this account as a source or destination
+    tx_delete_statement = delete(Transaction).where(
+        (Transaction.account_source_id == account_id) |
+        (Transaction.account_destination_id == account_id)
+    )
+    result = db.exec(tx_delete_statement)
+    deleted_transactions_count = result.rowcount
     
-    # Delete all related transactions
-    for tx in transactions:
-        db.delete(tx)
-    
-    # Delete the account
+    # Erase target parent account context
     db.delete(account)
     db.commit()
     
     return {
-        "message": f"Account '{account.name}' and {len(transactions)} transactions deleted"
+        "message": f"Account '{account.name}' and {deleted_transactions_count} transactions deleted successfully"
     }

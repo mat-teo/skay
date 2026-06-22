@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from slowapi.util import get_remote_address 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, Response
 from sqlmodel import Session, select
 from database import get_db
 from models import Transaction, TransactionCreate, User, TransactionCategory
@@ -189,9 +189,9 @@ def export_transactions(
     end_date: Optional[datetime] = Query(None),
     db: Session = Depends(get_db)
 ):
-    """Export transactions as CSV."""
+    """Export transactions as CSV with readable names instead of IDs."""
     
-    query = select(Transaction).where(Transaction.user_id == current_user.id, Transaction.amount != 0)
+    query = select(Transaction).where(Transaction.user_id == current_user.id)
     if start_date:
         query = query.where(Transaction.date >= start_date)
     if end_date:
@@ -199,33 +199,44 @@ def export_transactions(
     
     transactions = db.exec(query.order_by(Transaction.date.desc())).all()
     
-    # Get categories mapping
+    # Get mappings for readable names
     categories = db.exec(select(TransactionCategory)).all()
     cat_map = {c.id: c.name for c in categories}
     
-    # Build CSV content
-    import csv
-    from io import StringIO
+    accounts = db.exec(select(Account)).all()
+    acc_map = {a.id: a.name for a in accounts}
     
     output = StringIO()
     writer = csv.writer(output)
-    writer.writerow(['Date', 'Type', 'Category', 'Amount (€)', 'Notes', 'Source Account', 'Destination Account'])
+    
+    # ✅ Usa nomi leggibili invece di ID
+    writer.writerow(['Date', 'Description', 'Amount', 'Type', 'Category', 'Account'])
     
     for tx in transactions:
+        # Determine account name based on type
+        account_name = ''
+        if tx.type == 'expense' and tx.account_source_id:
+            account_name = acc_map.get(tx.account_source_id, '')
+        elif tx.type == 'income' and tx.account_destination_id:
+            account_name = acc_map.get(tx.account_destination_id, '')
+        elif tx.type == 'transfer':
+            source = acc_map.get(tx.account_source_id, '')
+            dest = acc_map.get(tx.account_destination_id, '')
+            account_name = f"{source} → {dest}"
+        
         writer.writerow([
-            tx.date.strftime('%Y-%m-%d'),
+            tx.date.strftime('%Y-%m-%d') if tx.date else '',
+            tx.notes or '',
+            f"{tx.amount:.2f}",
             tx.type,
             cat_map.get(tx.category_id, 'Uncategorized'),
-            tx.amount,
-            tx.notes or '',
-            tx.account_source_id or '',
-            tx.account_destination_id or ''
+            account_name
         ])
     
-    # Return as downloadable file
-    from fastapi.responses import Response
     return Response(
-        content=output.getvalue(),
+        content=output.getvalue().encode('utf-8'),
         media_type="text/csv",
-        headers={"Content-Disposition": f"attachment; filename=transactions_{datetime.now().strftime('%Y%m%d')}.csv"}
+        headers={
+            "Content-Disposition": f"attachment; filename=skay_export_{datetime.now().strftime('%Y%m%d')}.csv"
+        }
     )

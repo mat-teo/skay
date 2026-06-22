@@ -777,3 +777,33 @@
 .dark-theme .modal-body p {
   color: #e5e5e7 !important;
 }
+.dark-theme .bg-body-tertiary{
+  background-color: #2c2c2e !important;
+  color: #e5e5e7 !important;
+}
+.dark-theme .accordion-container {
+    background-color: #121212; 
+    border: 1px solid #2d2d2d;
+}
+
+.dark-theme .accordion-header {
+    background-color: #1e1e1e; 
+    color: #ffffff;            
+    border-bottom: 1px solid #2d2d2d;
+}
+
+.dark-theme .accordion-header:hover,
+.dark-theme .accordion-header.active {
+    background-color: #2a2a2a;
+    color: #3b82f6;
+}
+
+.dark-theme .accordion-body {
+    background-color: #181818;
+    color: #e0e0e0;
+}
+
+.dark-theme .accordion-arrow,
+.dark-theme .accordion-button::after {
+    filter: invert(1) brightness(2); 
+}

@@ -32,11 +32,11 @@
             <div class="nav-capsule-wrapper d-flex flex-column flex-md-row mx-auto my-3 my-md-0 gap-1 gap-md-0">
               <router-link class="nav-link-apple" to="/dashboard">Dashboard</router-link>
               <router-link class="nav-link-apple" to="/transactions">Transactions</router-link>
+              <router-link class="nav-link-apple" to="/stocks">Stocks</router-link>
               <router-link class="nav-link-apple" to="/stats">Stats</router-link>
               <router-link class="nav-link-apple" to="/categories">Categories</router-link>
               <router-link class="nav-link-apple" to="/budgets">Budgets</router-link>
               <router-link class="nav-link-apple" to="/profile">Profile</router-link>
-              <router-link class="nav-link-apple" to="/stocks">Stocks</router-link>
             </div>
 
             <!-- Area Logout -->

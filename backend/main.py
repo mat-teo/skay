@@ -3,7 +3,7 @@ from rate_limit import setup_rate_limiting, limiter
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
 from database import engine
-from routers import categories, accounts, transactions, auth, health, budgets, otp, users, recurring, stocks
+from routers import categories, accounts, transactions, auth, health, budgets,otp, users, recurring, stocks, import_data
 from logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -49,6 +49,7 @@ app.include_router(otp.router,prefix="/api")
 app.include_router(users.router,prefix="/api")
 app.include_router(recurring.router,prefix="/api")
 app.include_router(stocks.router,prefix="/api")
+app.include_router(import_data.router, prefix="/api")
 
 @app.get("/")
 @limiter.limit("10/minute")

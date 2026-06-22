@@ -54,6 +54,27 @@
         <TwoFactorSetup />
       </div>
     </div>
+
+    <!-- Import CSV - Full width -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 fw-bold text-secondary">
+              <i class="bi bi-file-earmark-arrow-up me-2 text-primary"></i>Import Data
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <p class="text-muted small mb-3">
+              Import transactions from CSV files (e.g., from your bank).
+              First, select an account, then upload the CSV file.
+            </p>
+            <ImportCSV @imported="onImportComplete" />
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -61,11 +82,13 @@
 import axios from 'axios';
 import { API_URL } from '../config';
 import TwoFactorSetup from './TwoFactorSetup.vue'; // Double check your relative folder structure here
+import ImportCSV from './ImportCSV.vue';
+
 
 export default {
   name: 'ProfileView',
   components: {
-    TwoFactorSetup
+    TwoFactorSetup, ImportCSV
   },
   data() {
     return {
@@ -141,6 +164,9 @@ export default {
       } finally {
         this.passwordChanging = false;
       }
+    }, 
+    onImportComplete() {
+      this.$root.showToast('Import complete! Transactions updated.', 'success');
     }
   }
 };
