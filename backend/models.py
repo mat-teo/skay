@@ -165,3 +165,34 @@ class RecurringTransaction(SQLModel, table=True):
         if v is None:
             raise ValueError('Account is required')
         return v
+    
+# ==========================================
+# 7. FINANCIAL GOALS MODELS
+# ==========================================
+class FinancialGoalBase(SQLModel):
+    name: str
+    target_amount: float
+    target_date: datetime
+    icon: Optional[str] = None
+    color: Optional[str] = None
+    
+    # Tracking mode: "category" or "account"
+    tracking_mode: str  # "category" or "account"
+    category_id: Optional[int] = None
+    account_id: Optional[int] = None
+    
+    # For account mode: percentage of account balance allocated to this goal
+    allocation_percentage: Optional[float] = None  # 0-100
+    is_archived: Optional[bool] = False
+
+class FinancialGoalCreate(FinancialGoalBase):
+    pass
+
+class FinancialGoal(FinancialGoalBase, table=True):
+    __tablename__ = "financial_goals"
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id")
+    current_amount: float = Field(default=0.0)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)

@@ -807,3 +807,15 @@
 .dark-theme .accordion-button::after {
     filter: invert(1) brightness(2); 
 }
+
+
+.dark-theme .bg-white {
+  background-color: #2c2c2e !important;
+  color: #ffffff !important;
+}
+
+
+.dark-theme .bg-white .rounded .text-muted{
+  background-color: #2c2c2e !important;
+  color: #ffffff !important;
+}

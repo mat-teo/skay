@@ -9,6 +9,7 @@ import { auth } from '../auth'
 import BudgetsView from '../components/budgets/BudgetsView.vue'
 import ProfileView from '../components/ProfileView.vue'
 import StocksView from '../components/stocks/StocksView.vue'
+import GoalsView from '../components/goals/GoalsView.vue'
 
 const routes = [
   {
@@ -69,6 +70,13 @@ const routes = [
     name: 'Stocks', 
     component: StocksView, 
     meta: { requiresAuth: true } 
+  },{
+    path: "/goals",
+    name: "Goals",
+    component: GoalsView,
+    meta: {
+      requiresAuth: true
+    }
   }
 ]
 
