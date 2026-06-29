@@ -1,0 +1,10 @@
+{
+  "goals": {
+    "title": "My Goals",
+    "subtitle": "Track your savings and reach your financial targets",
+    "new_goal": "New Goal",
+    "in_progress": "In Progress",
+    "achieved": "Goals Achieved!",
+    "saving": "Saving..."
+  }
+}

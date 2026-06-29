@@ -2,11 +2,11 @@
   <div class="goals-view py-4 container">
     <header class="page-header d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h1 class="page-title fw-bold">🎯 My Goals</h1>
-        <p class="text-muted mb-0">Track your savings and reach your financial targets</p>
+        <h1 class="page-title fw-bold">🎯 {{ $t('goals.title') }}</h1>
+        <p class="text-muted mb-0">{{ $t('goals.subtitle') }}</p>
       </div>
       <button class="btn btn-primary px-4 fw-semibold shadow-sm" @click="openCreateModal">
-        <i class="bi bi-plus-lg me-1"></i> New Goal
+        <i class="bi bi-plus-lg me-1"></i> {{ $t('goals.new_goal') }}
       </button>
     </header>
 
