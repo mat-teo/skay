@@ -3,7 +3,7 @@
     <div class="modal-dialog">
       <div class="modal-content border-0 shadow">
         <div class="modal-header">
-          <h5 class="modal-title fw-bold">{{ editingId ? '🔧 Edit Financial Goal' : '🎯 Create New Goal' }}</h5>
+          <h5 class="modal-title fw-bold">{{ editingId ? '🔧 Edit Goal' : '🎯 Create New Goal' }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -30,25 +30,25 @@
                 <input type="text" class="form-control text-center fs-5" v-model="form.icon" placeholder="🎯">
               </div>
               <div class="col-6 mb-3">
-                <label class="form-label fw-semibold">Card Tint Color</label>
+                <label class="form-label fw-semibold">Card Color</label>
                 <input type="color" class="form-control form-control-color w-100" v-model="form.color">
               </div>
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-semibold">Tracking Architecture Method</label>
+              <label class="form-label fw-semibold">How do you want to track this goal?</label>
               <select class="form-select" v-model="form.tracking_mode" @change="onTrackingModeChange" :disabled="!!editingId">
-                <option value="category">Category Inflows/Outflows Volume</option>
-                <option value="account">Account Asset Distribution Fractional Share</option>
+                <option value="category">Track specific spending categories</option>
+                <option value="account">Link directly to a bank account balance</option>
               </select>
-              <small class="text-muted d-block mt-1" v-if="editingId">Tracking architecture types cannot be mutated after instantiation.</small>
+              <small class="text-muted d-block mt-1" v-if="editingId">The tracking method cannot be changed after the goal is created.</small>
             </div>
 
             <!-- Dynamic Category Content View block -->
             <div v-if="form.tracking_mode === 'category'" class="mb-3 card bg-light p-3 border-0">
-              <label class="form-label fw-semibold">Target Transaction Category</label>
+              <label class="form-label fw-semibold">Choose Category</label>
               <select class="form-select" v-model="form.category_id" required>
-                <option :value="null" disabled>Select standard target index category</option>
+                <option :value="null" disabled>Select a category</option>
                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
               </select>
             </div>
@@ -56,23 +56,22 @@
             <!-- Dynamic Account Content View block -->
             <div v-if="form.tracking_mode === 'account'" class="mb-3 card bg-light p-3 border-0">
               <div class="mb-2">
-                <label class="form-label fw-semibold">Linked Treasury Account</label>
+                <label class="form-label fw-semibold">Link to Account</label>
                 <select class="form-select" v-model="form.account_id" required>
-                  <option :value="null" disabled>Select linked cash pool origin</option>
+                  <option :value="null" disabled>Select an account</option>
                   <option v-for="acc in accounts" :key="acc.id" :value="acc.id">
                     {{ acc.name }} ({{ acc.balance.toFixed(2) }} €)
                   </option>
                 </select>
               </div>
               <div>
-                <label class="form-label fw-semibold">Allocation Percentage Share ({{ form.allocation_percentage }}%)</label>
+                <label class="form-label fw-semibold">Percentage to allocate ({{ form.allocation_percentage }}%)</label>
                 <input type="range" class="form-range" min="1" max="100" step="0.5" v-model.number="form.allocation_percentage" required>
               </div>
             </div>
 
             <div class="modal-footer px-0 pb-0 d-flex justify-content-between mt-4">
               <div>
-                <!-- Inline alternative execution path context trigger for deletion inside modal -->
                 <button v-if="editingId" type="button" class="btn btn-outline-danger" @click="handleDeleteFromModal">
                   <i class="bi bi-trash3 me-1"></i> Delete
                 </button>
@@ -80,7 +79,7 @@
               <div class="d-flex gap-2">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="submit" class="btn btn-primary" :disabled="submitting">
-                  {{ submitting ? 'Processing Write...' : 'Save Changes' }}
+                  {{ submitting ? 'Saving...' : 'Save Changes' }}
                 </button>
               </div>
             </div>
@@ -178,7 +177,7 @@ export default {
     },
     async submit() {
       if (this.form.target_amount <= 0) {
-        this.$root.showToast('Target metrics boundary must exceed zero floor limits', 'warning');
+        this.$root.showToast('The target amount must be greater than zero.', 'warning');
         return;
       }
       
@@ -205,9 +204,9 @@ export default {
 
         this.close();
         this.$emit('saved');
-        this.$root.showToast(this.editingId ? 'Goal parameters successfully updated' : 'Goal initialized successfully', 'success');
+        this.$root.showToast(this.editingId ? 'Goal updated successfully!' : 'Goal created successfully!', 'success');
       } catch (err) {
-        const errorMsg = err.response?.data?.detail || 'Failed to save financial goal payload';
+        const errorMsg = err.response?.data?.detail || 'Could not save your goal. Please try again.';
         this.$root.showToast(errorMsg, 'danger');
         console.error(err);
       } finally {
